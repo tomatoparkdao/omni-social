@@ -13,7 +13,7 @@ if not exist "%ROOT%sau_frontend\node_modules" (
 )
 start "OmniSocial Backend" cmd /k "cd /d "%ROOT%" && .venv\Scripts\python.exe sau_backend.py"
 start "OmniSocial Frontend" cmd /k "cd /d "%ROOT%sau_frontend" && npm run dev -- --host 127.0.0.1"
-timeout /t 4 /nobreak >nul
+powershell -NoProfile -Command "Start-Sleep -Seconds 4"
 start "" http://127.0.0.1:5173
 echo OmniSocial: http://127.0.0.1:5173
 endlocal

@@ -1,18 +1,25 @@
 import asyncio
+import base64
+import json
+import logging
 import os
 import sqlite3
 import threading
 import time
 import uuid
 from pathlib import Path
-from queue import Queue
+from contextlib import closing
+from queue import Empty, Queue
 from flask_cors import CORS
 from myUtils.auth import check_cookie
 from flask import Flask, request, jsonify, Response, render_template, send_from_directory
 from werkzeug.utils import secure_filename
 from conf import BASE_DIR
-from myUtils.login import get_tencent_cookie, douyin_cookie_gen, get_ks_cookie, xiaohongshu_cookie_gen
+from myUtils.login import get_tencent_cookie, douyin_cookie_gen, get_ks_cookie
 from myUtils.postVideo import post_video_tencent, post_video_DouYin, post_video_ks, post_video_xhs
+from uploader.xiaohongshu_uploader.main import cookie_auth as xiaohongshu_cookie_auth, xiaohongshu_setup
+
+login_logger = logging.getLogger(__name__)
 
 active_queues = {}
 app = Flask(__name__)
@@ -247,7 +254,7 @@ def getAccounts():
 
 @app.route("/getValidAccounts",methods=['GET'])
 async def getValidAccounts():
-    with sqlite3.connect(Path(BASE_DIR / "db" / "database.db")) as conn:
+    with closing(sqlite3.connect(Path(BASE_DIR / "db" / "database.db"))) as conn:
         cursor = conn.cursor()
         cursor.execute('''
         SELECT * FROM user_info''')
@@ -257,7 +264,10 @@ async def getValidAccounts():
         for row in rows:
             print(row)
         for row in rows_list:
-            flag = await check_cookie(row[1],row[2])
+            if row[1] == 1:
+                flag = await xiaohongshu_cookie_auth(Path(BASE_DIR / "cookiesFile" / row[2]))
+            else:
+                flag = await check_cookie(row[1],row[2])
             if not flag:
                 row[4] = 0
                 cursor.execute('''
@@ -405,18 +415,17 @@ def login():
     type = request.args.get('type')
     # 账号名
     id = request.args.get('id')
+    if type not in {'1', '2', '3', '4'} or not id or not id.strip():
+        return jsonify({"code": 400, "msg": "平台类型或账号名称无效"}), 400
 
     # 模拟一个用于异步通信的队列
     status_queue = Queue()
     active_queues[id] = status_queue
-
-    def on_close():
-        print(f"清理队列: {id}")
-        del active_queues[id]
     # 启动异步任务线程
     thread = threading.Thread(target=run_async_function, args=(type,id,status_queue), daemon=True)
     thread.start()
-    response = Response(sse_stream(status_queue,), mimetype='text/event-stream')
+    response = Response(sse_stream(status_queue), mimetype='text/event-stream')
+    response.call_on_close(lambda: active_queues.pop(id, None) if active_queues.get(id) is status_queue else None)
     response.headers['Cache-Control'] = 'no-cache'
     response.headers['X-Accel-Buffering'] = 'no'  # 关键：禁用 Nginx 缓冲
     response.headers['Content-Type'] = 'text/event-stream'
@@ -705,37 +714,77 @@ def download_cookie():
 
 # 包装函数：在线程中运行异步函数
 def run_async_function(type,id,status_queue):
-    match type:
-        case '1':
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(xiaohongshu_cookie_gen(id, status_queue))
-            loop.close()
-        case '2':
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(get_tencent_cookie(id,status_queue))
-            loop.close()
-        case '3':
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(douyin_cookie_gen(id,status_queue))
-            loop.close()
-        case '4':
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(get_ks_cookie(id,status_queue))
-            loop.close()
+    try:
+        if type == '1':
+            asyncio.run(login_xiaohongshu_web(id, status_queue))
+        else:
+            login_action = {'2': get_tencent_cookie, '3': douyin_cookie_gen, '4': get_ks_cookie}[type]
+            asyncio.run(login_action(id, status_queue))
+    except Exception as exc:
+        browser_missing = "Executable doesn't exist" in str(exc)
+        code = "browser_missing" if browser_missing else "login_exception"
+        login_logger.error("登录线程失败（平台类型 %s，错误代码 %s，异常类型 %s）", type, code, exc.__class__.__name__)
+        message = "浏览器内核未安装，请运行 patchright install chromium" if browser_missing else "登录流程异常，请查看后端日志"
+        status_queue.put({"type": "error", "code": code, "message": message})
+
+
+async def login_xiaohongshu_web(account_name, status_queue):
+    with closing(sqlite3.connect(Path(BASE_DIR / "db" / "database.db"))) as conn:
+        existing = conn.execute(
+            "SELECT id, filePath FROM user_info WHERE type = 1 AND userName = ? ORDER BY id LIMIT 1",
+            (account_name,),
+        ).fetchone()
+    filename = existing[1] if existing else f"{uuid.uuid4()}.json"
+    account_file = Path(BASE_DIR / "cookiesFile" / filename)
+    account_file.parent.mkdir(parents=True, exist_ok=True)
+    qr_sent = False
+
+    def on_qrcode(qrcode):
+        nonlocal qr_sent
+        image_path = Path(qrcode["image_path"])
+        image = base64.b64encode(image_path.read_bytes()).decode("ascii")
+        status_queue.put({"type": "qr", "image": f"data:image/png;base64,{image}"})
+        qr_sent = True
+
+    result = await xiaohongshu_setup(
+        str(account_file), handle=True, return_detail=True, qrcode_callback=on_qrcode,
+    )
+    if not result["success"]:
+        status = result.get("status", "failed")
+        login_logger.warning("小红书网页登录未完成：%s", status)
+        if status == "timeout":
+            code, public_message = "login_timeout", "扫码登录超时，请重新获取二维码"
+        elif status == "cookie_invalid":
+            code, public_message = "cookie_invalid", "扫码后登录态校验失败，请重试"
+        elif not qr_sent:
+            code, public_message = "qr_unavailable", "小红书登录页二维码未能加载，请检查网络或登录页面后重试"
+        else:
+            code, public_message = "login_failed", "小红书登录流程失败，请查看后端日志"
+        status_queue.put({"type": "error", "code": code, "message": public_message})
+        return
+
+    with closing(sqlite3.connect(Path(BASE_DIR / "db" / "database.db"))) as conn:
+        if existing:
+            conn.execute("UPDATE user_info SET status = 1 WHERE id = ?", (existing[0],))
+        else:
+            conn.execute(
+                "INSERT INTO user_info (type, filePath, userName, status) VALUES (1, ?, ?, 1)",
+                (filename, account_name),
+            )
+        conn.commit()
+    status_queue.put({"type": "success"})
 
 # SSE 流生成器函数
 def sse_stream(status_queue):
     while True:
-        if not status_queue.empty():
-            msg = status_queue.get()
-            yield f"data: {msg}\n\n"
-        else:
-            # 避免 CPU 占满
-            time.sleep(0.1)
+        try:
+            msg = status_queue.get(timeout=15)
+        except Empty:
+            yield ": heartbeat\n\n"
+            continue
+        yield f"data: {json.dumps(msg, ensure_ascii=False) if isinstance(msg, dict) else msg}\n\n"
+        if msg in ('200', '500') or isinstance(msg, dict) and msg.get('type') in ('success', 'error'):
+            return
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0' ,port=5409)

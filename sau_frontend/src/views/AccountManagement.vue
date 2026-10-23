@@ -405,7 +405,7 @@
           </div>
           <div v-else-if="loginStatus === '500'" class="error-wrapper">
             <el-icon><CircleCloseFilled /></el-icon>
-            <span>添加失败，请稍后再试</span>
+            <span>{{ loginErrorMessage || '添加失败，请稍后再试' }}</span>
           </div>
         </div>
       </el-form>
@@ -604,6 +604,7 @@ const rules = {
 const sseConnecting = ref(false)
 const qrCodeData = ref('')
 const loginStatus = ref('')
+const loginErrorMessage = ref('')
 
 // 添加账号
 const handleAddAccount = () => {
@@ -618,6 +619,7 @@ const handleAddAccount = () => {
   sseConnecting.value = false
   qrCodeData.value = ''
   loginStatus.value = ''
+  loginErrorMessage.value = ''
   dialogVisible.value = true
 }
 
@@ -744,6 +746,7 @@ const handleReLogin = (row) => {
   sseConnecting.value = false
   qrCodeData.value = ''
   loginStatus.value = ''
+  loginErrorMessage.value = ''
 
   // 显示对话框
   dialogVisible.value = true
@@ -780,6 +783,8 @@ const connectSSE = (platform, name) => {
   sseConnecting.value = true
   qrCodeData.value = ''
   loginStatus.value = ''
+  loginErrorMessage.value = ''
+  let finished = false
 
   // 获取平台类型编号
   const platformTypeMap = {
@@ -799,7 +804,25 @@ const connectSSE = (platform, name) => {
 
   // 监听消息
   eventSource.onmessage = (event) => {
-    const data = event.data
+    let data = event.data
+    if (data.startsWith('{')) {
+      try {
+        const message = JSON.parse(data)
+        if (message.type === 'qr') {
+          qrCodeData.value = message.image
+          return
+        }
+        if (message.type === 'error') {
+          loginErrorMessage.value = message.message || '登录流程失败'
+          ElMessage.error(loginErrorMessage.value)
+          data = '500'
+        } else if (message.type === 'success') {
+          data = '200'
+        }
+      } catch (error) {
+        console.error('登录状态解析失败:', error)
+      }
+    }
 
     // 如果还没有二维码数据，且数据长度较长，认为是二维码
     if (!qrCodeData.value && data.length > 100) {
@@ -815,7 +838,9 @@ const connectSSE = (platform, name) => {
     }
     // 如果收到状态码
     else if (data === '200' || data === '500') {
+      finished = true
       loginStatus.value = data
+      closeSSEConnection()
 
       // 如果登录成功
       if (data === '200') {
@@ -847,23 +872,18 @@ const connectSSE = (platform, name) => {
           }, 1000)
         }, 1000)
       } else {
-        // 登录失败，关闭连接
-        closeSSEConnection()
-
-        // 2秒后重置状态，允许重试
-        setTimeout(() => {
-          sseConnecting.value = false
-          qrCodeData.value = ''
-          loginStatus.value = ''
-        }, 2000)
+        sseConnecting.value = false
       }
     }
   }
 
   // 监听错误
   eventSource.onerror = (error) => {
+    if (finished) return
     console.error('SSE连接错误:', error)
-    ElMessage.error('连接服务器失败，请稍后再试')
+    loginErrorMessage.value = '登录连接中断，请检查后端服务后重试'
+    loginStatus.value = '500'
+    ElMessage.error(loginErrorMessage.value)
     closeSSEConnection()
     sseConnecting.value = false
   }

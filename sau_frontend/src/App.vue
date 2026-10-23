@@ -4,7 +4,7 @@
       <el-aside :class="{ 'is-collapsed': isCollapse }" :width="isCollapse ? '64px' : '232px'">
         <div class="sidebar">
           <div class="logo">
-            <img class="logo-mark" src="https://wuxianhuabu123454.tos-cn-beijing.volces.com/public/site/20260727-v1/brand/omniailab-icon.svg" alt="Omni AiLab">
+            <img class="logo-mark" src="/omniailab-icon.svg" alt="Omni AiLab">
             <div v-show="!isCollapse" class="brand-copy">
               <h2>OmniSocial</h2>
               <span>内容运营工作台</span>
