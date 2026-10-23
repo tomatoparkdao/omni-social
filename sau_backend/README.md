@@ -41,4 +41,4 @@ videoFile文件夹 文件上传存放位置
 web 文件夹 web路由目录
 conf.py 全局配置，记得修改配置中 LOCAL_CHROME_PATH 为本机浏览器地址
 
-> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniSocial 自媒体运营系统（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

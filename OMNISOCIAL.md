@@ -13,4 +13,4 @@ agent_created: true
 
 本地开发：先创建 `.venv` 并安装 `requirements.txt`，再进入 `sau_frontend` 执行 `npm install`。双击 `start-omnisocial.bat` 启动后端 `5409` 和前端 `5173`；使用 `stop-omnisocial.bat` 停止。
 
-> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniSocial 自媒体运营系统（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

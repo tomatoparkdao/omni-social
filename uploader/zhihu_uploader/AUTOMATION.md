@@ -52,4 +52,4 @@ control = field.get_by_role("combobox")
 
 `--prepare-only` 和候选查询可能自动保存草稿。结果未知时先查原作品，禁止自动重发。定时是实验性路径，必须核对平台实际排期后才能返回定时成功。
 
-> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniSocial 自媒体运营系统（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

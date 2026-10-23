@@ -79,5 +79,5 @@ sau dayu upload-article --account creator --title "如何阅读作品数据面�
 
 需要大鱼号原生排版时可显式指定 `--theme plain`。斜体、代码块、用户输入的表格等未接入格式会在上传前报错。其他要求见 [大鱼号图文发布](./dayu-article.md)。
 
-> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniSocial 自媒体运营系统（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
 

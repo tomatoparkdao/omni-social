@@ -133,4 +133,4 @@ sau bilibili check --account test
 - Bilibili 命令运行时会自动检查并更新 `biliup`
 - Bilibili 登录当前仍建议让用户自己在本地真实终端里执行；如果二维码显示不完整，可让用户直接打开 `qrcode.png` 扫码
 
-> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniSocial 自媒体运营系统（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

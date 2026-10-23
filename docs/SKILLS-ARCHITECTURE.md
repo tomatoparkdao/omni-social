@@ -55,4 +55,4 @@ omni-social-manager -- 解析字段、确认平台、执行安全检查
 - 网页 Agent 预留接口：`POST /agent/plan`，空请求返回 400，带 prompt 返回 `awaiting_confirmation`，并明确 `publish_executed=false`。
 - 未执行任何真实平台发布、账号覆盖或登录状态删除。
 
-> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniSocial 自媒体运营系统（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

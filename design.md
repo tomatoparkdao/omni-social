@@ -144,5 +144,5 @@ font-family: "PingFang SC", "Inter Variable", "Noto Sans SC", "Microsoft YaHei",
 - 主品牌强调统一为 `#c8ff00`，Logo 使用官网官方资源。
 - 修改只影响视觉层，不改变现有业务逻辑和接口。
 
-> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniSocial 自媒体运营系统（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
 

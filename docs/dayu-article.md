@@ -162,4 +162,4 @@ sau dayu verify --account creator --result "cookies/dayu_results/本次结果文
 
 默认等待每张图片上传最多 600 秒，可用 `--upload-timeout` 调整，单位为秒。`--headed` 显示 Chrome，`--debug` 出错时保存截图。
 
-> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniSocial 自媒体运营系统（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

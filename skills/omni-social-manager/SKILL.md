@@ -55,5 +55,4 @@ agent_created: true
 - 登录状态：使用 `sau <platform> check --account <name>`；缺失时提示用户自行执行 login。
 - 具体参数以当前 CLI 的 `--help` 和平台 Skill 为准，不复制或重写 Uploader 实现。
 
-> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
-
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniSocial 自媒体运营系统（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

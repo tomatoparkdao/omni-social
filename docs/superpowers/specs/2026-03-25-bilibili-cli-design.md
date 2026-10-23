@@ -287,4 +287,4 @@ B 站也继续沿用现在项目的账号别名机制：
 - 有新版本时先自动更新，再继续执行
 - 整体实现保持轻量，不做过度封装
 
-> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniSocial 自媒体运营系统（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

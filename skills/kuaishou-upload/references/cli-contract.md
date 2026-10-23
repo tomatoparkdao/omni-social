@@ -112,4 +112,4 @@ YYYY-MM-DD HH:MM
 - 图文正文统一使用 `--note`
 - `upload-note` 当前要求传入真实的多张图片文件，而不是同一路径重复多次
 
-> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniSocial 自媒体运营系统（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

@@ -411,4 +411,4 @@ README 和 docs 中要明确说明：
 - 抖音、快手补齐 `desc` 能力，并统一图文正文字段为 `note`
 - 实现保持轻量，不做过度封装
 
-> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniSocial 自媒体运营系统（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

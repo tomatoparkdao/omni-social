@@ -15,4 +15,4 @@ agent_created: true
 - 修复了抖音旧位置参数兼容、声明失败时浏览器资源释放、Instagram 可选提示清理，以及小红书候选项等待时间的回归问题。
 - 最终全量测试：137 passed，71 subtests passed。
 
-> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniSocial 自媒体运营系统（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

@@ -84,5 +84,5 @@ npx skills add tomatoparkdao/omni-social --skill douyin-upload
 
 GitHub PR 模板也包含相同的提醒清单。更改 CLI 参数、登录流程或平台限制时，同步修改对应 Skill，避免 Skill 与实现逐渐失配。
 
-> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniSocial 自媒体运营系统（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
 
