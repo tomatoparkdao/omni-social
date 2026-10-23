@@ -3,7 +3,7 @@ name: CHANGELOG
 author: OmniAiLab
 developer: Mochiball
 agent_created: true
-开源仓库: 内部项目（未公开）
+开源仓库: https://github.com/tomatoparkdao/omni-social
 操作手册: docs/LOCAL-DEVELOPMENT.md
 ---
 
@@ -42,3 +42,5 @@ agent_created: true
 5. 在 GitHub 创建同名 Release，把本版本日志粘贴到 Release notes，并保留验证范围和已知限制。
 
 版本发布前，未完成真实平台验收的能力必须明确写成“待验收”，不能写成已支持。
+
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

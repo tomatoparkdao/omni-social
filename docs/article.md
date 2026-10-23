@@ -3,7 +3,7 @@ name: article
 author: OmniAiLab
 developer: Mochiball
 agent_created: true
-开源仓库: 内部项目（未公开）
+开源仓库: https://github.com/tomatoparkdao/omni-social
 操作手册: docs/LOCAL-DEVELOPMENT.md
 ---
 
@@ -78,3 +78,5 @@ sau dayu upload-article --account creator --title "如何阅读作品数据面�
 大鱼号会自动将主题 HTML 转换为兼容排版，保留文字颜色、背景色和近似字号，正文仍可选择和复制；确认发表前会检查服务端预览。圆角、精确字号、字体、间距和边框可能与本地预览不同。本地渲染器仍输出完整主题 HTML，其他平台可以使用同一份原稿和渲染结果，再按各自的格式要求接入。
 
 需要大鱼号原生排版时可显式指定 `--theme plain`。斜体、代码块、用户输入的表格等未接入格式会在上传前报错。其他要求见 [大鱼号图文发布](./dayu-article.md)。
+
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

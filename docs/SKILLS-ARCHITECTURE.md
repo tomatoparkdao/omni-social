@@ -3,7 +3,7 @@ name: SKILLS-ARCHITECTURE
 author: OmniAiLab
 developer: Mochiball
 agent_created: true
-开源仓库: 内部项目（未公开）
+开源仓库: https://github.com/tomatoparkdao/omni-social
 操作手册: docs/LOCAL-DEVELOPMENT.md
 ---
 
@@ -54,3 +54,5 @@ omni-social-manager -- 解析字段、确认平台、执行安全检查
 - 项目全量 Python 测试：137 passed，71 subtests passed。
 - 网页 Agent 预留接口：`POST /agent/plan`，空请求返回 400，带 prompt 返回 `awaiting_confirmation`，并明确 `publish_executed=false`。
 - 未执行任何真实平台发布、账号覆盖或登录状态删除。
+
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

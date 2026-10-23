@@ -3,7 +3,7 @@ name: README
 author: OmniAiLab
 developer: Mochiball
 agent_created: true
-开源仓库: 内部项目（未公开）
+开源仓库: https://github.com/tomatoparkdao/omni-social
 操作手册: docs/LOCAL-DEVELOPMENT.md
 ---
 
@@ -40,3 +40,5 @@ myUtils文件夹 存储自己封装的python模块
 videoFile文件夹 文件上传存放位置
 web 文件夹 web路由目录
 conf.py 全局配置，记得修改配置中 LOCAL_CHROME_PATH 为本机浏览器地址
+
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

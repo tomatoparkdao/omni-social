@@ -9,7 +9,7 @@ summary: 使用 sau 登录抖音并发布视频或图文。
 author: OmniAiLab
 developer: Mochiball
 agent_created: true
-开源仓库: 内部项目（未公开）
+开源仓库: https://github.com/tomatoparkdao/omni-social
 操作手册: docs/LOCAL-DEVELOPMENT.md
 ---
 author: OmniAiLab
@@ -72,3 +72,5 @@ author: OmniAiLab
 - 运行前提：`references/runtime-requirements.md`
 - CLI 契约：`references/cli-contract.md`
 - 故障排查：`references/troubleshooting.md`
+
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

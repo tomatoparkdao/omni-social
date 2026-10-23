@@ -3,7 +3,7 @@ name: dayu-article
 author: OmniAiLab
 developer: Mochiball
 agent_created: true
-开源仓库: 内部项目（未公开）
+开源仓库: https://github.com/tomatoparkdao/omni-social
 操作手册: docs/LOCAL-DEVELOPMENT.md
 ---
 
@@ -161,3 +161,5 @@ sau dayu verify --account creator --result "cookies/dayu_results/本次结果文
 公开检查会等待文章可公开访问，核对标题、账号和图片加载；使用本次结果文件还会比对完整正文、图文顺序和支持的格式，主题文章还会核对文字颜色和背景色，成功时返回公开文章链接。公开检查是独立操作，不影响发表操作已确认的成功结果。
 
 默认等待每张图片上传最多 600 秒，可用 `--upload-timeout` 调整，单位为秒。`--headed` 显示 Chrome，`--debug` 出错时保存截图。
+
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

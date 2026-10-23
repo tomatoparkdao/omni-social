@@ -3,7 +3,7 @@ name: dayu
 author: OmniAiLab
 developer: Mochiball
 agent_created: true
-开源仓库: 内部项目（未公开）
+开源仓库: https://github.com/tomatoparkdao/omni-social
 操作手册: docs/LOCAL-DEVELOPMENT.md
 ---
 
@@ -124,3 +124,5 @@ sau dayu verify --account creator --result "cookies/dayu_results/本次结果文
 | `--debug` | 出错时保存页面截图，便于排查 |
 
 完整参数帮助：`sau dayu upload-video --help`。
+
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

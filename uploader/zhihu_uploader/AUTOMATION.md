@@ -3,7 +3,7 @@ name: AUTOMATION
 author: OmniAiLab
 developer: Mochiball
 agent_created: true
-开源仓库: 内部项目（未公开）
+开源仓库: https://github.com/tomatoparkdao/omni-social
 操作手册: docs/LOCAL-DEVELOPMENT.md
 ---
 
@@ -51,3 +51,5 @@ control = field.get_by_role("combobox")
 原登录浏览器中的文章和视频均已完成真实发表及详情核对。Python CLI 整条链路、非 PNG 图片及定时受理仍需独立验证；本地测试不替代线上提交证据。排查素材、截图与账号结果保存在忽略目录 `.local/`，不纳入公开使用文档。
 
 `--prepare-only` 和候选查询可能自动保存草稿。结果未知时先查原作品，禁止自动重发。定时是实验性路径，必须核对平台实际排期后才能返回定时成功。
+
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

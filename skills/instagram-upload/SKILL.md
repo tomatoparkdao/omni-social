@@ -9,7 +9,7 @@ summary: 发布 Instagram Reels、单图或轮播，并核验作品。
 author: OmniAiLab
 developer: Mochiball
 agent_created: true
-开源仓库: 内部项目（未公开）
+开源仓库: https://github.com/tomatoparkdao/omni-social
 操作手册: docs/LOCAL-DEVELOPMENT.md
 ---
 author: OmniAiLab
@@ -50,3 +50,5 @@ sau instagram delete --account creator --post-url "原作品链接" --expected-t
 - `instagram_commands.ps1`：PowerShell
 - `instagram_commands.sh`：Bash
 - `instagram_cli_template.py`：Python subprocess
+
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

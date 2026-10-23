@@ -9,7 +9,7 @@ summary: 登录百家号并发布视频，支持封面和合集。
 author: OmniAiLab
 developer: Mochiball
 agent_created: true
-开源仓库: 内部项目（未公开）
+开源仓库: https://github.com/tomatoparkdao/omni-social
 操作手册: docs/LOCAL-DEVELOPMENT.md
 ---
 author: OmniAiLab
@@ -28,3 +28,5 @@ sau baijiahao upload-video --account creator --file videos/demo.mp4 --title "标
 当前仅支持视频，不支持图文和定时发布。可选 `--thumbnail` 指定封面，`--collection` 指定已有合集。先完成百度账号登录并保存会话；登录出现二维码时把二维码图片展示给用户。
 
 发布前核对账号、素材、标题、文案和标签。只有命令及平台提供的本次提交证据才表示成功；超时或状态不明时先去后台核查，不能直接重发。
+
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

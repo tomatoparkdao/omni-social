@@ -3,7 +3,7 @@ name: REPAIR-LOG
 author: OmniAiLab
 developer: Mochiball
 agent_created: true
-开源仓库: 内部项目（未公开）
+开源仓库: https://github.com/tomatoparkdao/omni-social
 操作手册: docs/LOCAL-DEVELOPMENT.md
 ---
 
@@ -14,3 +14,5 @@ agent_created: true
 - 已在 `utils/article_renderer` 安装渲染依赖，Markdown 渲染测试通过；前端自身构建也已通过。
 - 修复了抖音旧位置参数兼容、声明失败时浏览器资源释放、Instagram 可选提示清理，以及小红书候选项等待时间的回归问题。
 - 最终全量测试：137 passed，71 subtests passed。
+
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

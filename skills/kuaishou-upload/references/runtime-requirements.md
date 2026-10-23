@@ -3,7 +3,7 @@ name: runtime-requirements
 author: OmniAiLab
 developer: Mochiball
 agent_created: true
-开源仓库: 内部项目（未公开）
+开源仓库: https://github.com/tomatoparkdao/omni-social
 操作手册: docs/LOCAL-DEVELOPMENT.md
 ---
 
@@ -75,3 +75,5 @@ uv run sau kuaishou --help
 - 快手 CLI 默认按无头模式运行
 - 如果用户明确要求可见浏览器窗口，或二维码展示确实有问题，再切到 `--headed`
 - 如果登录过程中已经生成了本地二维码图片，agent 应优先直接把图片展示/发送给用户扫码，不要只告诉用户图片路径
+
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

@@ -3,7 +3,7 @@ name: skill-distribution
 author: OmniAiLab
 developer: Mochiball
 agent_created: true
-开源仓库: 内部项目（未公开）
+开源仓库: https://github.com/tomatoparkdao/omni-social
 操作手册: docs/LOCAL-DEVELOPMENT.md
 ---
 
@@ -83,3 +83,5 @@ npx skills add dreammis/social-auto-upload --skill douyin-upload
 - 对每个适用的公开 Skills 市场完成提交，或记录明确的账号、格式、许可等阻塞原因；核对许可、审核和版本要求，未提交或待审核不得标成已上架
 
 GitHub PR 模板也包含相同的提醒清单。更改 CLI 参数、登录流程或平台限制时，同步修改对应 Skill，避免 Skill 与实现逐渐失配。
+
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

@@ -3,7 +3,7 @@ name: troubleshooting
 author: OmniAiLab
 developer: Mochiball
 agent_created: true
-开源仓库: 内部项目（未公开）
+开源仓库: https://github.com/tomatoparkdao/omni-social
 操作手册: docs/LOCAL-DEVELOPMENT.md
 ---
 
@@ -76,3 +76,5 @@ sau bilibili login --account <account>
 
 - 当前下载到的 `biliup` 版本
 - 上游 release 是否有最近变更
+
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

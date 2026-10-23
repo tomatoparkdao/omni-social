@@ -3,7 +3,7 @@ name: xueqiu_article
 author: OmniAiLab
 developer: Mochiball
 agent_created: true
-开源仓库: 内部项目（未公开）
+开源仓库: https://github.com/tomatoparkdao/omni-social
 操作手册: docs/LOCAL-DEVELOPMENT.md
 ---
 
@@ -32,3 +32,5 @@ agent_created: true
 第二张图片后仍然可以继续写正文，也可以加入[雪球链接](https://xueqiu.com/)。替换示例内容时，把自己的图片放在原稿旁的 images 目录，再修改相应的图片路径。
 
 本示例包含标题、段落、加粗、斜体、有序列表、引用、链接和两张段间图片。雪球会将不同级别的标题统一为平台小标题，列表保留编号，引用保留文字和段落。
+
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

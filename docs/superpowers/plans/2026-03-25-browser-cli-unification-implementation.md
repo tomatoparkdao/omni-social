@@ -3,7 +3,7 @@ name: 2026-03-25-browser-cli-unification-implementation
 author: OmniAiLab
 developer: Mochiball
 agent_created: true
-开源仓库: 内部项目（未公开）
+开源仓库: https://github.com/tomatoparkdao/omni-social
 操作手册: docs/LOCAL-DEVELOPMENT.md
 ---
 
@@ -572,3 +572,5 @@ Expected:
 git add examples/get_xiaohongshu_cookie.py examples/upload_video_to_xiaohongshu.py README.md docs/CLI.md docs/install.md docs/update.md
 git commit -m "docs: align browser cli docs and examples"
 ```
+
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

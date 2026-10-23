@@ -8,7 +8,7 @@ version: 1.0.0
 author: OmniAiLab
 developer: Mochiball
 agent_created: true
-开源仓库: 内部项目（未公开）
+开源仓库: https://github.com/tomatoparkdao/omni-social
 操作手册: docs/LOCAL-DEVELOPMENT.md
 ---
 
@@ -45,3 +45,5 @@ agent_created: true
 - 图文/笔记：通常使用 `sau <platform> upload-note`。
 - 登录状态：使用 `sau <platform> check --account <name>`；缺失时提示用户自行执行 login。
 - 具体参数以当前 CLI 的 `--help` 和平台 Skill 为准，不复制或重写 Uploader 实现。
+
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。

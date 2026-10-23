@@ -9,7 +9,7 @@ summary: 使用 sau 登录知乎并发布文章或视频。
 author: OmniAiLab
 developer: Mochiball
 agent_created: true
-开源仓库: 内部项目（未公开）
+开源仓库: https://github.com/tomatoparkdao/omni-social
 操作手册: docs/LOCAL-DEVELOPMENT.md
 ---
 author: OmniAiLab
@@ -99,3 +99,5 @@ sau zhihu verify --account creator --result "本次结果.json"
 - [PowerShell](scripts/examples/zhihu_commands.ps1)
 - [Bash](scripts/examples/zhihu_commands.sh)
 - [Python subprocess](scripts/examples/zhihu_cli_template.py)
+
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
