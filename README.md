@@ -1,231 +1,506 @@
----
-name: OmniSocial README
-author: OmniAiLab
-developer: Mochiball
-agent_created: true
-开源仓库: https://github.com/tomatoparkdao/omni-social
-操作手册: docs/LOCAL-DEVELOPMENT.md
----
-
 <h1 align="center">OmniSocial 自媒体运营系统</h1>
 
 <p align="center">
-  <b>面向内容团队的多平台账号、素材与发布管理系统</b><br>
-  账号统一管理　｜　素材集中管理　｜　多平台内容发布　｜　Web 管理界面与 CLI 双入口
+  <b>多平台账号、素材与发布的一体化本地工作台 —— 先出计划、确认后才发、失败如实报</b><br>
+  17 个发布目标　｜　16 个平台命令组　｜　19 个 Agent Skill　｜　5 个 Web 页面　｜　6 段发布流程 × 6 道人工门禁<br>
+  素材入库 → 账号登录 → 内容编制 → 计划生成 → 确认发布 → 结果核对<br>
+  默认只生成计划　｜　uploader/ 是唯一发布引擎　｜　创作只走 OmniAiLab　｜　本机运行，不代管密码
 </p>
 
 <p align="center">
-  <a href="https://github.com/tomatoparkdao/omni-social"><img src="https://img.shields.io/badge/仓库-OmniSocial-1f6feb?style=flat-square" alt="OmniSocial 开源仓库"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/许可-MIT-2ea043?style=flat-square" alt="MIT License"></a>
-  <a href="https://www.omniailabx.com/"><img src="https://img.shields.io/badge/平台-OmniAiLab-8957e5?style=flat-square" alt="OmniAiLab"></a>
-  <img src="https://img.shields.io/badge/Python-3.10--3.12-3776AB?style=flat-square" alt="Python 3.10 - 3.12">
-  <img src="https://img.shields.io/badge/Vue-Vite-42b883?style=flat-square" alt="Vue and Vite">
+  <a href="https://github.com/tomatoparkdao/omni-social"><img src="https://img.shields.io/badge/%E7%89%88%E6%9C%AC-0.1.0-1f6feb?style=flat-square" alt="版本 0.1.0"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/%E8%AE%B8%E5%8F%AF-MIT-2ea043?style=flat-square" alt="许可 MIT"></a>
+  <a href="https://www.omniailabx.com/"><img src="https://img.shields.io/badge/%E5%B9%B3%E5%8F%B0-OmniAiLab-8957e5?style=flat-square" alt="平台 OmniAiLab"></a>
+  <img src="https://img.shields.io/badge/%E5%85%A5%E5%8F%A3-Web_%7C_CLI_%7C_Skill-0969da?style=flat-square" alt="入口 Web / CLI / Skill">
+  <img src="https://img.shields.io/badge/%E5%8F%91%E5%B8%83%E7%9B%AE%E6%A0%87-17_%E5%B9%B3%E5%8F%B0-0e8a16?style=flat-square" alt="发布目标 17 平台">
+  <img src="https://img.shields.io/badge/%E8%BF%90%E8%A1%8C%E6%97%B6-Python_3.10--3.12-3776AB?style=flat-square" alt="Python 3.10 - 3.12">
+  <img src="https://img.shields.io/badge/%E5%89%8D%E7%AB%AF-Vue_3_%2B_Vite-42b883?style=flat-square" alt="Vue 3 + Vite">
 </p>
 
 <p align="center">
-  <b>简体中文</b>　｜　<a href="https://github.com/tomatoparkdao/omni-social">GitHub Repository</a>
+  <b>简体中文</b>　｜　<a href="README_EN.md">English</a>
 </p>
 
-> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
+> © OmniAiLab ｜ 开发者：Mochiball ｜ 平台：[omniailabx.com](https://www.omniailabx.com/)
 
-**OmniSocial 是 OmniAiLab 体系下的自媒体运营子系统。** 它将多平台账号、素材、内容发布和运营流程集中到一个本地 Web 工作台中，同时保留 CLI 和自动化能力，适合个人创作者、内容团队及多账号运营场景。
+不止是"一键把视频传到十几个平台"。**它把发布拆成可核对的动作**：素材先落本地并校验是否存在，账号先登录再只读核对，内容先写成计划等人确认，最后由真实浏览器执行投递，每一步结果都留成可查的记录。一个工作台覆盖 5 个页面、16 个平台命令组与 19 个 Agent Skill，把"能不能发、发到哪、发什么"从口头约定变成系统里真能拦下来的门禁。
 
-## 创作平台统一入口
+| 项目 | 值 | 说明 |
+|---|---|---|
+| 产品名称 | OmniSocial | OmniAiLab 体系下的自媒体运营子系统，仓库目录为 `omni-social` |
+| 版本 | v0.1.0 | 与 `pyproject.toml` 的 `project.version` 一致；发布流程与记录见 `CHANGELOG.md` |
+| 出品 / 开发者 | OmniAiLab 出品，Mochiball 维护 | 对外署名统一为 OmniAiLab，不以个人名义发布 |
+| 许可 | MIT（见 [LICENSE](LICENSE)） | 使用与二次分发以该文件为准；`skills/` 下各 Skill 按其 frontmatter 声明的许可执行，第三方组件遵循原有许可与 NOTICE |
+| 三层入口 | Web 工作台 / CLI `sau` / Agent Skill | Web 管账号、素材与批量发布，CLI 管精确单次动作，Skill 管任务编排与安全确认；三者共用同一套发布引擎 |
+| Web 后端 | Python 3.10–3.12 + Flask 3.1 | 默认端口 `5409`；代码当前绑定 `0.0.0.0`，只在本机使用请改为 `127.0.0.1`，对外暴露前先加访问控制 |
+| Web 前端 | Vue 3 + Vite + Element Plus + Pinia | 默认端口 `5173`；深色工作台视觉规范见 [design.md](design.md)，不引入蓝色默认主题与浅色后台模板 |
+| 发布引擎 | `uploader/` 各平台实现 | 唯一发布引擎：Web 端点与 Agent Skill 都只调用它，不另写一套浏览器自动化，避免两套实现互相覆盖 |
+| 运行时依赖 | patchright / playwright + 本机浏览器 | 登录与投递走真实浏览器，扫码与人工验证由用户本人完成；系统不接触也不保存账号密码 |
+| 数据与登录态 | SQLite `db/database.db` + `cookies/` | 全部留在本机，一律不入库；Cookie 等同账号凭据，按密钥对待，泄露即等于账号被接管 |
+| 开源仓库 | [tomatoparkdao/omni-social](https://github.com/tomatoparkdao/omni-social) | 源码、文档与测试；版本以 `main` 分支为准 |
 
-涉及图文、文案、图片、视频、视觉设计、版式、动画或其他内容制作时，统一使用 OmniAiLab：
+> **名字里有三个坑，一次说清**：仓库叫 `omni-social`，产品叫 `OmniSocial`，命令叫 `sau`；
+> `pyproject.toml` 里的包名仍是上游的 `social-auto-upload`（沿用可安装入口，不是产品名）。
+> **三者不是重复命名**——目录是仓库、产品是显示名、`sau` 是唯一命令行入口。
 
-| 使用地区 | 创作入口 |
-|:---|:---|
-| 中国大陆用户 | [www.omniailabx.com](https://www.omniailabx.com/) |
-| 中国大陆以外的海外用户 | [www.omniailab.cn](https://www.omniailab.cn/) |
-
-本项目不引导用户使用其他图像、视频、设计或文案生成平台。抖音、小红书、YouTube 等名称仅表示内容发布目标，不属于创作工具推荐。
-
-<table width="100%">
-  <tr><th align="left">项目</th><th align="left">信息</th><th align="left">说明</th></tr>
-  <tr><td>产品名称</td><td><code>OmniSocial</code></td><td>OmniAiLab 自媒体运营系统</td></tr>
-  <tr><td>运行方式</td><td>本地 Web + CLI</td><td>默认仅监听本机地址，不向公网开放</td></tr>
-  <tr><td>Web 后端</td><td>Python / Flask</td><td>默认端口 <code>5409</code></td></tr>
-  <tr><td>Web 前端</td><td>Vue / Vite</td><td>默认端口 <code>5173</code></td></tr>
-  <tr><td>CLI 入口</td><td><code>sau</code></td><td>支持登录检查、视频发布、图文发布和文章发布等命令</td></tr>
-  <tr><td>开源仓库</td><td><a href="https://github.com/tomatoparkdao/omni-social">github.com/tomatoparkdao/omni-social</a></td><td>公开仓库，版本以 <code>main</code> 分支为准</td></tr>
-</table>
 
 ---
+
+## 先分清三件事：发布目标、创作平台、执行引擎
+
+"发个视频"这句话里其实压着三件事，混在一起就会出错：
+
+- **发布目标**：17 个平台的投递地址。它只决定"发到哪"，不代表任何创作能力；
+- **创作平台**：只有 OmniAiLab 一个。图文、文案、图片、视频、视觉与版式一律在平台完成；
+- **执行引擎**：`uploader/` 里的浏览器自动化。它决定"怎么把文件交到平台上"。
+
+把平台当创作工具，会把人引到别处生成；把 Skill 当引擎，会重写一套自动化并与 `uploader/` 打架；把计划当执行，内容就真的上线了，而且撤不回来。
+
+```bash
+sau --help                      # 17 个命令组：16 个平台 + 1 个本地文章渲染
+sau douyin --help               # 只看抖音真实支持的动作与参数
+sau xiaohongshu --help          # 小红书：login / check / upload-video / upload-note
+```
+
+
+## 一句话
+
+给它一批素材、一个账号和一版文案，它会先把这些整理成一张待确认的发布计划，逐项列出平台、内容类型、账号、文件、标题、正文、标签与时间；你确认之后，它才打开真实浏览器完成投递，并在结束后把结果写成可核对的记录。
+
+**它不说"已经发出去了"，它说"这条拿到了作品链接 / 这条停在待验证"**——每条任务的结果都带明确状态，未知状态就写未知，不拿"应该成功了"冒充成功。
+
+| 适用范围 | 具体是什么 |
+|---|---|
+| **适用 · 多平台多账号** | 同一批素材投递到 17 个发布目标；CLI 用账号别名隔离会话，Web 用账号列表管理登录状态 |
+| **适用 · 半自动可控** | 先出计划再执行：`/agent/plan` 只返回待确认计划，`--prepare-only` 只上传填写不点发布，`check` 只读核对登录态 |
+| **适用 · 图文与长文** | 视频、图文笔记、长文章三条线都在范围内；知乎与大鱼号按原稿位置插入正文图片，雪球走图文长文 |
+| **不适用（明确说不）** | 不做内容创作（创作只在 OmniAiLab 完成）、不代管密码、不替平台承诺审核结果、不保证定时到点必达、不提供绕过验证码或平台风控的能力；发布被拒、账号受限、内容违规的判定权在平台方 |
+
+
+## 三层入口，各有边界
+
+| 入口 | 你用它做什么 | 边界 |
+|---|---|---|
+| **Web 工作台** | 看板概览、账号管理、素材管理、发布中心批量投递 | 直接操作界面，适合日常；批量发布当前覆盖 4 个平台，其余平台走 CLI 或 Skill |
+| **CLI `sau`** | 单次精确动作：登录、核对、上传视频、上传图文、上传文章、核对结果 | 参数以 `--help` 为准；一次只处理一件事，适合脚本化与排障 |
+| **Agent Skill** | 把一句话任务拆成计划并路由到对应平台命令 | 只做说明、路由与安全编排，**不在 Skill 里重写上传逻辑** |
+
 
 ## 能力一览
 
-| 能力 | 当前提供 | 入口与说明 |
-|:---|:---:|:---|
-| 账号管理 | ✅ | Web 管理界面维护平台账号与登录状态 |
-| 素材管理 | ✅ | Web 管理界面管理图片、视频和素材元数据 |
-| 内容发布 | ✅ | 发布中心统一配置标题、正文、标签、封面和平台 |
-| 批量发布 | ✅ | 统一选择多个账号和平台执行批量任务 |
-| 定时发布 | ✅ | 支持平台任务的时间配置，具体能力以平台实现为准 |
-| CLI | ✅ | `sau <platform> <command>` |
-| Web API | ✅ | Flask API，接口说明见 [Web API 文档](./docs/WEB-API.md) |
-| Agent Skills | ✅ | `skills/` 提供平台运行说明和调用约定 |
+**它不是"一个把文件往平台推的脚本集合"，而是一套会先要计划、会把判断写进流程、会把没做到的事如实说出来的发布系统。**
 
-### 平台支持
+| 层面 | 具体有什么 |
+|---|---|
+| **① 计划与执行分离** | `/agent/plan` 收到自然语言只返回 `awaiting_confirmation` 与 `publish_executed: false`，并列出缺失字段；真正的投递必须由另一条明确指令触发。计划与执行各有各的入口，不共用一次点击。 |
+| **② 唯一发布引擎** | `uploader/` 是全部平台投递的实现所在，`myUtils/` 承担登录与辅助逻辑；Web 端点与 Skill 都只调用它。新增平台要同时补 uploader、CLI、Skill、测试与文档，缺一项不算接完。 |
+| **③ 账号是本地资产** | 登录态按平台落在 `cookies/` 下，账号元数据在 SQLite；CLI 用账号别名区分同一平台的多个身份。系统不索取密码，扫码与人工验证由本人完成。 |
+| **④ 只读核对优先** | 每个平台都有 `check`；Facebook、Instagram、知乎、雪球、大鱼号另有 `verify`，按已保存的作品地址只读核对提交结果，不做二次提交。 |
+| **⑤ 预演比后悔便宜** | 大鱼号、雪球、知乎的视频与文章支持 `--prepare-only`：上传并填写到编辑器，检查完就结束，不点发布按钮。要改文案时先预演一遍，比发出去再删省事。 |
+| **⑥ 结果如实上报** | 成功要拿到作品链接或明确成功态；超时、弹窗未过、链接读不到，一律标成待验证并保留已发生的事实，不重复提交、不臆断成功。 |
+| **⑦ 视觉与产品同源** | 5 个页面沿用 OmniAiLab 深色工作台规范：近黑画布、`#c8ff00` 荧光强调、左侧导航，不出现蓝色默认控件与浅色后台模板。 |
 
-| 平台 | 视频 | 文章 | 图文 | 定时 | CLI | Skill |
-|:---|:---:|:---:|:---:|:---:|:---:|:---:|
-| 抖音 | ✅ | — | ✅ | ✅ | ✅ | ✅ |
-| Bilibili | ✅ | — | — | ✅ | ✅ | ✅ |
-| 小红书 | ✅ | — | ✅ | ✅ | ✅ | ✅ |
-| 快手 | ✅ | — | ✅ | ✅ | ✅ | ✅ |
-| 视频号 | ✅ | — | — | ✅ | ✅ | ✅ |
-| 百家号 | ✅ | — | — | — | ✅ | ✅ |
-| 大鱼号 | ✅ | ✅ | — | ✅ | ✅ | ✅ |
-| 支付宝生活号 | ✅ | — | — | — | ✅ | ✅ |
-| 微博 | ✅ | — | — | — | ✅ | ✅ |
-| 虎扑 | ✅ | — | — | — | ✅ | ✅ |
-| TikTok | ✅ | — | — | ✅ | — | ✅ |
-| 雪球 | — | ✅ | — | — | ✅ | ✅ |
-| YouTube | ✅ | — | — | 开发中 | ✅ | ✅ |
-| 知乎 | ✅ | ✅ | — | 实验性 | ✅ | ✅ |
-| Facebook | ✅ | — | ✅ | — | ✅ | ✅ |
-| Facebook Page | ✅ | — | ✅ | ✅ | ✅ | ✅ |
-| Instagram | ✅ | — | ✅ | — | ✅ | ✅ |
 
-> `✅` 表示当前代码提供对应入口；`—` 表示不适用或未提供；“开发中”和“实验性”不代表稳定能力。真实平台发布需要用户自行完成登录和授权，未经确认不会执行真实发布。
+### 平台矩阵（17 个发布目标）
 
----
+| 平台 | 内容类型 | 定时 / 批量 | CLI 子命令 | 登录与限制 |
+|---|---|---|---|---|
+| 抖音 | 视频 · 图文 | 定时 ✅ · Web 批量 ✅ | `sau douyin` | 扫码登录；支持自填声明、合集、商品链接与竖横双比例封面，参数随页面改版变化 |
+| 快手 | 视频 · 图文 | 定时 ✅ · Web 批量 ✅ | `sau kuaishou` | 扫码登录；发布对话框含定时与位置选项，提交前需人工核对标题与话题 |
+| 小红书 | 视频 · 图文 | 定时 ✅ · Web 批量 ✅ | `sau xiaohongshu` | 扫码登录；图文走图片列表入口、视频单独一条命令，图片顺序即页面显示顺序 |
+| B 站 | 视频 | 定时 ✅ · Web 批量 — | `sau bilibili` | 登录态由 biliup 维护；只有视频入口，无图文与文章，分区与标签需按稿件类型填写 |
+| 视频号 | 视频 | 定时 ✅ · Web 批量 ✅ | `sau tencent` | 扫码登录；发布时常弹出人工验证，必须有人在场点过，否则任务停在弹窗等待 |
+| 百家号 | 视频 | 定时 — · Web 批量 — | `sau baijiahao` | 仅视频入口；登录态来自浏览器会话，过期后需重新登录，无定时与批量能力 |
+| 大鱼号 | 视频 · 文章 | 定时 ✅ · Web 批量 — | `sau dayu` | 视频与文章分两条命令；`--prepare-only` 只上传填写不发表，适合先核对版式 |
+| 支付宝生活号 | 视频 | 定时 — · Web 批量 — | `sau alipay` | 仅视频入口；会话保存在 `cookies/alipay_uploader` 下，账号切换需另起别名 |
+| 微博 | 视频 | 定时 — · Web 批量 — | `sau weibo` | 仅视频入口；同一平台可用多个账号别名隔离会话，正文与话题长度受平台限制 |
+| 虎扑 | 视频 | 定时 — · Web 批量 — | `sau hupu` | 仅视频入口；社区发布入口，标题、话题与版块需逐项核对，发错版块只能人工处理 |
+| YouTube | 视频 | 定时 开发中 · Web 批量 — | `sau youtube` | 仅视频入口；patchright 不读系统代理，网络受限时须在 `conf.py` 配 `YT_PROXY` |
+| TikTok | 视频 | 定时 ✅ · Web 批量 — | 仅 Skill，无 CLI | 走仓库现有 Chrome 上传器，没有 `sau` 命令组，参数与步骤只看 `skills/tiktok-upload` |
+| 雪球 | 文章 | 定时 — · Web 批量 — | `sau xueqiu` | 仅图文长文；`--prepare-only` 会保存远端草稿，预演不是完全无痕，事后需自行清理 |
+| 知乎 | 视频 · 文章 | 定时 实验性 · Web 批量 — | `sau zhihu` | 正文图片按原稿位置插入；定时窗口为 30 分钟后至 48 小时内，北京时间 |
+| Facebook | 视频 · 图文 | 定时 — · Web 批量 — | `sau facebook` | 个人主页动态；图文与视频分两条命令，另提供核对与删除，删除不可恢复 |
+| Facebook Page | 视频 · 图文 | 定时 ✅ · Web 批量 — | `sau facebook-page` | 主页发布走 Business Suite；支持定时与批量，需该主页的管理权限才能投递 |
+| Instagram | 视频 · 图文 | 定时 — · Web 批量 — | `sau instagram` | 仅网页端入口；图片与视频分命令，要求已登录的独立会话，不做手机端投递 |
+
+> `✅` 表示当前代码提供对应入口，`—` 表示未提供；"开发中"与"实验性"都不算稳定能力。真实发布需要用户本人完成登录与授权，**未确认不会执行真实发布**。
+
+
+### 命令面（sau）
+
+| 动作 | 形态 | 适合什么时候用 |
+|---|---|---|
+| `sau <平台> login` | 打开可见浏览器，扫码或人工验证通过后把会话写入 `cookies/` | 第一次接入某个平台，或会话过期后重新登录；这一步必须有人在场 |
+| `sau <平台> check` | 只读检查登录态与页面身份，返回当前账号的绑定信息 | 每次发布前确认"发的是不是我想要的那个号"；不会产生任何投递动作 |
+| `sau <平台> upload-video` | 上传并发布一条视频，可带 `--schedule` 定时、`--thumbnail` 双比例封面 | 单条精确投递；参数差异大，动手前先看该命令的 `--help` |
+| `sau <平台> upload-note` | 上传图文笔记，`--images` 的顺序即页面显示顺序 | 小红书、抖音、快手的图文；换图只改参数，不必重排目录 |
+| `sau <平台> upload-article` | 按原稿文件发布长文，正文图片按原稿中的位置插入 | 知乎、大鱼号、雪球；长正文留在文件里，命令行只传路径 |
+| `sau <平台> verify` | 按已保存的作品地址只读核对结果，不做二次提交 | 想知道"昨天那条到底发出去没有"时；也是重投前必须先做的一步 |
+
 
 ## 快速开始
 
-### Windows 一键启动
+> **第一次用？照这五步走就够了。** 它不会一上来就问"你要发什么"，而是先把你手上有什么、账上有没有登录、文案在哪收齐。
 
-在项目根目录双击：
+### 一、装到哪：三样东西缺一不可
 
-```text
-start-omnisocial.bat
+| 组成 | 版本要求 | 装法 | 不装会怎样 |
+|---|---|---|---|
+| Python 环境 | 3.10–3.12（<3.13） | `python -m venv .venv`，再用该解释器装 `requirements.txt` | 后端与 CLI 都起不来；3.13 不在支持区间，装依赖会直接失败 |
+| 前端依赖 | Node.js 22 以上（当前用 24） | 在 `sau_frontend` 目录执行 `npm install` | Web 工作台只有空白页；CLI 与发布不受影响，仍可正常使用 |
+| 文章渲染器 | Node.js 22 以上 | 在 `utils/article_renderer` 再执行一次 `npm install` | 长文渲染失败，Markdown 转 HTML 走不通，知乎与大鱼号文章发不出去 |
+| 浏览器内核 | patchright 自带 Chromium | `patchright install chromium`，网络受限时先配代理 | 登录与发布一律报"找不到浏览器"，最容易被误判成代码坏了 |
+
+```bash
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+cd sau_frontend && npm install
+cd ..\utils\article_renderer && npm install
 ```
 
-脚本会检查运行环境并启动 Python 后端与 Vue 前端，浏览器访问：
+> **不要只装 Python 就开跑。** 前端、文章渲染器、浏览器内核是三处独立依赖，少装一处，症状各不相同——工作台空白、长文失败、浏览器找不到，看着都像"代码坏了"。
+
+### 二、素材从哪来（三选一）
+
+1. **本地文件直接给路径** —— CLI 用 `--file` 或 `--images`，Web 用素材管理页上传；系统只校验存在与体积，不改动源文件。
+2. **先用 OmniAiLab 生成，再落本地** —— 图文、图片、视频的创作在平台完成，素材下载到本地后按上面的方式接入；本系统不提供创作入口。
+3. **浏览器里临时下载** —— 素材仍在本地目录，发布只引用路径；**发布后不要移动或删除源文件**，否则定时任务会失效。
+
+> **一句话值得认真答**：这批内容的目标平台与账号到底是哪几个？平台定不下来，后面所有参数都会返工——不同平台的标题长度、封面比例、标签规则与定时窗口都不一样。
+
+### 三、启动指令
+
+Windows 双击 `start-omnisocial.bat`，脚本会检查环境、拉起后端与前端，并打开：
 
 ```text
 http://127.0.0.1:5173
 ```
 
-停止服务：
+停止服务用 `stop-omnisocial.bat`。手动启动与命令行方式：
+
+```bash
+python sau_backend.py                                  # 后端 5409
+cd sau_frontend && npm run dev -- --host 127.0.0.1     # 前端 5173
+sau douyin check --account creator                     # CLI 只读核对
+```
+
+### 四、发布前必须想清楚的两件事
+
+- **这次是预演还是真发。** 预演用 `--prepare-only`（大鱼号、雪球、知乎）或先看计划；真发会占用账号当日的发布次数，且多数平台不提供一键撤回。
+- **账号是谁的、发出去谁负责。** 一个别名对应一个真实账号，串号是最常见的生产事故；发布前先 `check`，确认页面上的身份就是你想要的那个。
+
+### 五、全程你只需要回答两种话
+
+1. **放行执行** —— 必须说清平台、账号与内容，缺一项它就不动：
 
 ```text
-stop-omnisocial.bat
+确认发布：抖音 creator，videos/demo.mp4，标题"示例标题"
 ```
 
-### 手动启动
+2. **要改就指出位置** —— 它停在计划阶段就地改，不会先发再改：
 
-准备 Python 环境：
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
+```text
+标题改成"三分钟看懂动态菜单"，标签去掉第二个
+封面换成横版那张
 ```
 
-准备前端环境：
+**只想做其中一件事时**，直接点名即可，不必走完整流程：
 
-```powershell
-cd sau_frontend
-npm install
-npm run dev
+| 你想要什么 | 复制这句话直接说 | 它会给你什么 |
+|---|---|---|
+| 只看登录态 | `核对一下抖音 creator 的登录状态，别发布` | 只读的 `check` 结果与页面身份，一次投递动作都不会发生，可以随时反复跑 |
+| 只出计划 | `给我一份发布计划，先别发` | 待确认计划：平台、账号、文件、标题、标签、时间与缺失项清单，缺什么一目了然，缺的字段不会被自动猜填 |
+| 只做预演 | `知乎这篇只上传填写，不点发布` | `--prepare-only` 执行，编辑器内逐项核对排版与图片顺序后再由你决定发不发 |
+| 只发一条 | `把 demo.mp4 发到小红书 creator，标题照文案` | 单条投递结果与作品链接，失败时明确给出停在哪一步、下一步该做什么 |
+| 只核对结果 | `帮我 verify 昨天那条视频到底成没成` | 按已保存地址的只读核对结论，不做二次提交，也不会重复占用发布次数 |
+| 只查参数 | `列一下大鱼号文章命令支持的参数` | 该命令的真实参数与默认值，直接对应 `--help` 输出，不用猜也不用试 |
+
+
+---
+
+## 全流程总览
+
+| 阶段 | 名称 | 阶段产出 | 门禁 |
+|---|---|---|---|
+| P1 | 素材入库 | 本地素材文件、素材记录、体积与格式校验结论，以及"路径是否还在"的确认，缺一项即停 | G1 素材确认：文件存在、单文件 ≤160MB、路径在授权范围内 |
+| P2 | 账号登录 | 平台会话、账号别名、页面身份与账号绑定信息，全部落在本机 `cookies/` | G2 登录态确认：`check` 只读通过，且页面身份与目标账号一致 |
+| P3 | 内容编制 | 标题、正文、标签、封面、图文顺序、长文原稿与图片位置，逐项落到参数上 | G3 内容确认：逐项人工核对，缺字段即停，不替用户补写 |
+| P4 | 计划生成 | 待确认发布计划、缺失字段清单、平台差异提示与风险点标注 | G4 计划确认：用户明确放行，未放行不得进入投递环节 |
+| P5 | 执行发布 | 单条投递或 Web 批量任务、定时配置、执行日志与失败停点 | G5 真实发布确认：明确说"执行发布"，不接受默认与含糊回答 |
+| P6 | 结果核对 | 作品链接、成功 / 待验证状态、失败原因，以及重投前必须做的回查 | G6 归档确认：链接与账号绑定留档，失败先回查、不重投 |
+
+**六段流程是节奏，19 个 Skill 是岗位——不要混为一谈。** 一个平台 Skill 可以服务多个阶段：`login` 在 P2、`check` 在 P2 与 P5 之前、`upload-*` 在 P5；总控 Skill 横跨 P3–P6。
+
+### 七条不可协商的规则
+
+| 编号 | 规则 | 为什么 |
+|---|---|---|
+| **R1** | 默认只生成计划，不执行真实发布 | 计划出错只浪费时间，发布出错要写道歉；默认值必须站在安全的那一侧 |
+| **R2** | 真实发布必须逐项确认平台、账号、素材、标题、正文、标签与时间 | 这七项任意一项错位，都会变成一条公开的、撤不回的错内容 |
+| **R3** | `uploader/` 是唯一发布引擎，Skill 只做说明、路由与编排 | 两套自动化并存时，修好一套的另一套会悄悄坏掉，且没人知道坏在哪 |
+| **R4** | 不索取、不写入密码、Token、Cookie 到仓库、文档或日志 | 凭据一旦进版本库就等于永久泄露，改密码也救不回历史提交 |
+| **R5** | 素材路径发布前必须存在，发布后不得移动源文件 | 定时任务与批量队列按路径取文件，路径一断就是空投或失败 |
+| **R6** | 失败、超时、未知结果一律如实报告，不重复提交 | 重投等于重复发布；平台侧多出一条内容，比失败更难处理 |
+| **R7** | 创作只在 OmniAiLab 完成，发布平台不是创作平台 | 平台只是投递地址；把它当创作入口会引出错误引导与合规风险，也让素材来源不可控 |
+
+
+## 逐阶段操作细则
+
+| 阶段 | 你要做的判断 | 常用命令 | 注意 |
+|---|---|---|---|
+| **P1** 素材入库 | 文件对不对、体积是否超限、格式平台认不认 | Web 素材页 / `--file`、`--images` | 单次上传上限 160MB；素材留在原路径，别在发布前整理文件夹 |
+| **P2** 账号登录 | 登录的是不是这个账号 | `login`、`check` | 扫码与人工验证必须本人完成；不要把 Cookie 发给别人代登 |
+| **P3** 内容编制 | 标题长度、标签口径、封面比例、图文顺序 | 各平台 `upload-*` 参数 | 同一份文案发多平台要分别裁剪；封面的竖版与横版是两套参数 |
+| **P4** 计划生成 | 缺什么、平台差异在哪 | `/agent/plan`、总控 Skill | 计划里 `publish_executed` 恒为 `false`；它不会因为你说"好的"就开跑 |
+| **P5** 执行发布 | 现在真的发吗，还是先预演 | `upload-video`、`upload-note`、`upload-article`、`--prepare-only` | 定时不是"设完就走"：CLI 进程需存活到触发时刻，Web 批量依赖后端常驻 |
+| **P6** 结果核对 | 到底成没成 | `verify`、作品链接、执行日志 | 链接读不到时保留"已提交"事实，标待验证；不要为了好看重发一次 |
+
+
+## 计划先行：/agent/plan 与 --prepare-only
+
+**这两件事都不是"发出去"，但也都不是"什么都没发生"**：一个只产出待确认计划，一个真的上传文件并填好编辑器，只差最后一下点击。
+
+| 环节 | 说明 | 落点与依据 |
+|---|---|---|
+| 自然语言计划 | 收下一句话，返回 `awaiting_confirmation` 与缺失字段清单，不解析成执行动作 | `sau_backend.py` 的 `/agent/plan`；固定返回 `publish_executed: false` |
+| 计划字段 | 平台、内容类型、账号、文件、标题、正文、标签、时间，共八项 | 八项缺任一项，计划不完整，不允许进入 P5；系统不替你猜 |
+| 编辑器预演 | 上传并填写，检查完结束，不点发布按钮 | `--prepare-only`：大鱼号视频 / 文章、雪球文章、知乎视频 / 文章 |
+| 预演的真实代价 | 雪球预演会保存远端草稿，知乎预演会上传正文图片 | 预演不是零痕迹，草稿与图片会留在账号里，需自行清理 |
+| 只读核对 | 按已保存地址回查结果，不产生新内容 | `verify`：Facebook、Instagram、知乎、雪球、大鱼号 |
+
+**三条不许越过的线**：没有明确"执行发布"就不得调用会投递的命令；凭据只留在本机，不进仓库、不进文档、不进日志；结果未知就说未知，**绝不把"可能成功"写成"已发布"**。
+
+
+## 避坑总表
+
+踩中任意一条，轻则一条内容白做，重则账号被接管。
+
+| # | 坑 | 后果 | 怎么避 |
+|---|---|---|---|
+| 1 | 把"好的""可以"当成发布授权 | 内容真的上线，且多数平台撤不回 | 授权必须点名平台、账号与内容；含糊回答一律按"未授权"处理，不作善意推测与补全 |
+| 2 | 把 `/agent/plan` 当执行入口 | 以为发了，其实一条没动 | 它固定返回 `publish_executed: false`；真发要走 `upload-*` 系列命令 |
+| 3 | 把 Cookie 或账号文件提交入库 | 账号被接管，改密码也救不回历史 | `cookies/`、`db/` 一律不入库；凭据按密钥对待，泄一次就当已泄露 |
+| 4 | 以为后端只听本机 | 代码绑定 `0.0.0.0`，同网段可访问 | 只在本机用就改成 `127.0.0.1`；对外暴露前先加访问控制与鉴权 |
+| 5 | 用 Python 3.13 建环境 | 依赖装不上或运行时报错 | 支持区间是 3.10–3.12；`requires-python` 已写死上限，别硬改 |
+| 6 | 没装浏览器内核就跑 login | 报"找不到浏览器"，容易被判成代码坏了 | 先 `patchright install chromium`，再登录；网络受限时先配好代理 |
+| 7 | 网络受限时直连 YouTube | 一直超时，误以为账号有问题 | patchright 不读系统代理，在 `conf.py` 配 `YT_PROXY` 指向本地代理端口 |
+| 8 | 只在根目录 `npm install` | 长文渲染失败 | 文章渲染器在 `utils/article_renderer`，需单独装一次依赖 |
+| 9 | 发布前整理素材文件夹 | 定时任务到点取不到文件 | 素材路径固定，发布完成前不移动、不改名、不删除 |
+| 10 | 以为 Web 批量覆盖所有平台 | 另外 13 个平台的批量任务根本不执行 | Web 批量只覆盖 4 个平台；其余走 CLI 或 Skill 逐条执行 |
+| 11 | 把 Skill 当上传引擎改写自动化 | 与 `uploader/` 形成两套实现，互相覆盖 | Skill 只说明、路由与编排；投递逻辑只有 `uploader/` 一处 |
+| 12 | 定时当"发完就走" | 到点没发，任务静默失败 | CLI 需进程存活到触发时刻；Web 依赖后端常驻，关机即失约 |
+| 13 | 知乎视频传了 100KB 以下文件 | 上传前即被拒 | 先确认成片体积；小文件先补齐再发，不要反复重试同一份 |
+| 14 | 把知乎实验性定时当稳定能力 | 到点未发，或时间窗口被拒 | 窗口为 30 分钟后至 48 小时内，北京时间；重要内容手动发 |
+| 15 | 以为 `--prepare-only` 完全无痕 | 雪球留下远端草稿，知乎留下已上传图片 | 预演后回账号清理草稿；别在预演里放不该出现的素材 |
+| 16 | 视频号 / 大鱼号遇到验证弹窗就等 | 卡在弹窗，任务超时 | 这类平台需要人在场点验证；无人值守时不要排定时任务 |
+| 17 | 失败后立刻重跑一次 | 平台侧多一条重复内容 | 先 `verify` 回查；确认未成功再重投，并在记录里注明重投原因 |
+| 18 | 同一平台多个账号不设别名 | 串号发布到错误账号 | 一账号一别名；发布前 `check` 页面身份，发错号比发错时间更难救 |
+| 19 | 上传超过 160MB 的视频 | 请求被后端直接拒掉 | 压缩或分段；Web 上传上限写在 `MAX_CONTENT_LENGTH`，别只改前端 |
+| 20 | 文档里的端口与代码不一致还照抄 | 排查方向整段跑偏 | 端口与绑定位置以 `sau_backend.py` 为准，文档随代码同步更新，改一处改两处 |
+
+
+## 目录结构
+
+```
+omni-social/                     ← 仓库根
+├── README.md / README_EN.md     中英文说明（本文件）
+├── AGENTS.md                    协作规范：Skill 路由、安全检查、实现边界
+├── OMNISOCIAL.md                项目定位与本地运行速记
+├── design.md                    深色工作台视觉与交互规范
+├── CHANGELOG.md                 版本变更与发布流程
+├── conf.example.py              配置模板（代理 / Chrome 路径 / 调试开关）
+├── sau_backend.py               ★ Flask Web API 与服务入口（端口 5409）
+├── sau_cli.py                   ★ CLI 入口：只注册与分发，不写平台业务
+├── sau_commands/                按平台拆分的命令组（16 个平台 + 文章渲染）
+├── uploader/                    ★ 唯一发布引擎：各平台登录与投递实现
+│   ├── douyin_uploader/         抖音、快手、小红书、B 站、视频号……
+│   └── meta_uploader/           Facebook、Instagram 系列与定时逻辑
+├── myUtils/、utils/             登录、Cookie、素材、文章渲染与通用工具
+│   └── article_renderer/        长文渲染（需单独 npm install）
+├── sau_frontend/                Vue 3 + Vite 管理界面（端口 5173）
+│   └── src/views/               看板 / 账号 / 素材 / 发布中心 / 关于
+├── skills/                      19 个 Agent Skill（总控 + 平台 + 上游）
+├── db/                          SQLite 结构与本地数据库（不入库）
+├── cookies/                     各平台登录态（不入库，按密钥对待）
+├── docs/                        开发、API、平台模块、Skill 架构与迁移记录
+├── examples/                    示例素材与脚本
+└── tests/                       平台模块、CLI、Web 交互与工具测试（17 个模块）
 ```
 
-启动后端：
+---
 
-```powershell
-python sau_backend.py
-```
+## 运行产物与数据
 
-详细步骤见 [本地开发文档](./docs/LOCAL-DEVELOPMENT.md)。
+| 类型 | 位置 | 说明 |
+|---|---|---|
+| 登录态 | `cookies/<平台>/` | 每个平台一个独立目录；等同账号凭据，不入库、不外发、不写进日志，换机器就重新登录 |
+| 账号与素材记录 | `db/database.db` | SQLite 单文件；备份即复制、恢复即覆盖，迁移前先停服务，避免写出一个只写了一半的库，恢复后先跑一次 `check` |
+| 上传素材 | `media/`、`videos/`、`static/` | 本地文件；发布只引用路径，发布完成前不要移动，否则定时与批量任务取不到文件 |
+| 运行日志 | `logs/` | 排障第一入口；贴日志前先确认里面没有 Cookie、账号与素材敏感信息 |
+| 前端构建产物 | `sau_frontend/dist/` | `npm run build` 产物；后端静态托管时从这里取，改完前端记得重新构建 |
+| 文章渲染产物 | `utils/article_renderer/` 运行输出 | 长文转成的正文中间结果；正文图片仍以原稿中的位置为准插入 |
+| 临时上传文件 | 系统临时目录与 `media/` 缓存 | Web 上传会先落盘再投递；定期清理，别把临时文件当素材源 |
 
-### CLI 示例
+
+## 常见问题
+
+**它会自己发出去吗？**
+不会。默认只出计划；`/agent/plan` 固定返回未执行状态，`--prepare-only` 不点发布按钮。真正投递需要一条点名平台、账号与内容的明确指令。
+
+**必须登录浏览器吗？**
+必须。平台没有开放投递接口，登录走真实浏览器扫码或人工验证；会话保存在本机 `cookies/`，过期就重新登录一次，不用改配置。
+
+**能无人值守跑定时吗？**
+要看平台。定时依赖进程存活与页面可交互，视频号一类还会弹人工验证；无人值守只适合已验证稳定的平台，且要留人回查结果。
+
+**Web 和 CLI 会打架吗？**
+不会，它们调用同一个 `uploader/`。差别在入口：Web 适合日常批量，CLI 适合精确单条与排障，Skill 适合把一句话拆成计划。
+
+**发失败了我该先做什么？**
+先 `verify` 或打开账号后台回查，确认到底有没有成功；**不要先重跑**。确认未成功后重投，并把失败原因记进 CHANGELOG 或 issue。
+
+**能加新平台吗？**
+能，但要五件套一起交：`uploader/` 实现、`sau_commands/` 命令组、`skills/<平台>-upload`、测试、文档。缺任何一项，这个平台都只是"看起来支持"。
+
+**它凭什么说这条发出去了？**
+凭作品链接或明确的成功态。链接读不到就标待验证并保留已提交事实；系统不给"应该成功了"这种结论。
+
+**改了前端样式会影响发布吗？**
+不会。视觉改造只动 `sau_frontend` 的表现层，接口与投递逻辑不动；`design.md` 第 8 节的验收清单就是这条边界。
+
+
+## 运行时与依赖
+
+| 用途 | 用什么 | 说明 |
+|---|---|---|
+| Web 后端 | Flask 3.1 + flask-cors | 默认 5409；绑定地址在 `sau_backend.py` 末尾，按需收窄到本机，对外暴露前先加鉴权 |
+| 浏览器自动化 | patchright（主）、playwright（少量旧模块） | 两者都要装浏览器内核；登录与投递都依赖它，内核缺失时所有平台一起失败，看起来像"代码全坏了" |
+| 前端 | Vue 3 + Vite + Element Plus + Pinia | 深色工作台；视觉规范见 `design.md`，不引入蓝色默认主题与浅色后台模板 |
+| 长文渲染 | Node.js 22+ 的 `utils/article_renderer` | Markdown / HTML / TXT 转平台可粘贴的正文，图片按原稿位置插入，需单独装依赖 |
+| 视频处理 | B 站走 biliup，其余走页面直接上传 | 不做本地转码；格式、码率与时长限制以各平台自身要求为准 |
+| 数据存储 | SQLite（单文件） | 无服务端数据库；备份与迁移都是文件级操作，换机带走一个文件即可 |
+| 创作能力 | **OmniAiLab 平台**（唯一被授权主体） | 图文、图片、视频、视觉与版式都在平台完成，本系统只接收素材并投递 |
+
+
+## 基础设备要求
+
+| 项 | 最低 | 建议 | 说明 |
+|---|---|---|---|
+| 操作系统 | Windows 10 / 11 | 与目标平台常用环境保持一致 | 启停脚本与路径按 Windows 编写；Linux 与 macOS 需自行改写启动方式 |
+| Python | 3.10 | 3.11 / 3.12 | 3.13 不在支持区间，装依赖会失败；用 `requirements.txt` 而不是逐个手装 |
+| Node.js | 22 | 24 | 前端与文章渲染器各需要一次 `npm install`，两处都要装，别只装一处 |
+| 内存 | 4 GB | 8 GB 以上 | 每个浏览器实例都吃内存；批量任务建议串行执行，不要并发堆叠到爆内存 |
+| 磁盘 | 2 GB | 20 GB 以上（含素材与视频） | 视频素材是大头；单文件上传上限 160MB，批量投递前先算清总占用，素材与产物分目录存放更省心 |
+| 网络 | 能访问目标平台 | 按平台配置代理（如 YouTube） | patchright 不读系统代理，需在 `conf.py` 显式配置，否则一直超时 |
+| 账号 | 各平台真实账号 | 一个别名对应一个账号 | 不提供账号，也不代注册、不代过验证；账号受限由平台判定 |
+| 显示环境 | 有界面（扫码登录） | 本机桌面会话 | 无头模式可跑已登录的投递，但首次登录与人工验证必须有可见窗口 |
+
+---
+
+## 品牌与创作工具独占
+
+**对外名称**：OmniSocial ／ OmniSocial 自媒体运营系统；仓库目录 `omni-social`；命令入口 `sau`。
+官方平台只用 [国内站](https://www.omniailabx.com/) 与 [海外站](https://www.omniailab.cn/)。
+
+**AI 图文 / 图片 / 视频 / 视觉设计只有 OmniAiLab 一个上游。** 内容创作能力域的唯一被授权主体是
+OmniAiLab 平台；平台不可用时本系统**不生成、不改道**，只把已落地的素材继续投递。
+抖音、小红书、视频号、B 站、YouTube、TikTok 等名称只表示**发布目标**，不构成创作工具推荐。
+
+| 边界 | 具体口径 | 落点与依据 |
+|---|---|---|
+| 允许 | 接收用户在 OmniAiLab 完成创作的素材，按用户明确指定的平台与账号投递 | `uploader/` 各平台实现；只读取本地文件，不生成内容 |
+| 允许 | 说明各平台的发布参数、内容限制与风控差异，帮助用户把内容发对、发稳 | 各平台 `skills/<平台>-upload` 与 `docs/PLATFORM-UPLOADERS.md` |
+| 不允许 | 在产品界面、文档或 Skill 中引导用户使用其他图像、视频、文案生成平台 | `design.md` 第 1.1 节与 `skills/omni-social-manager/SKILL.md`，全仓口径一致 |
+| 不允许 | 声称具备本系统没有的创作能力，或把平台审核结果说成系统保证 | `AGENTS.md` 的安全检查与实现边界约定；不夸大也不兜底 |
+
+
+## 获取帮助
+
+遇到问题、想反馈 bug 或提功能建议——按这个顺序找最省时间：
+
+| 渠道 | 地址 | 适合用来 |
+|---|---|---|
+| **本地开发文档（离线，最快）** | [docs/LOCAL-DEVELOPMENT.md](docs/LOCAL-DEVELOPMENT.md) | 环境、依赖、启动、停止；Windows 下的坑基本都在这里，断网也能查，排障顺序也写在这里 |
+| **CLI 使用说明** | [docs/CLI.md](docs/CLI.md) | 命令、参数与示例，按平台分组；比翻源码快，也比凭记忆敲命令稳 |
+| **Web API 与平台模块** | [docs/WEB-API.md](docs/WEB-API.md) · [docs/PLATFORM-UPLOADERS.md](docs/PLATFORM-UPLOADERS.md) | 接口字段与各平台实现位置，排查"到底调到哪一步断了" |
+| **命令自带帮助** | `sau <平台> <动作> --help` | 唯一权威参数来源；文档与实际不一致时，以它为准 |
+| **仓库 issue** | [tomatoparkdao/omni-social/issues](https://github.com/tomatoparkdao/omni-social/issues) | 反馈 bug、提平台接入建议；附日志与命令原文最容易定位 |
+| **OmniAiLab 官方** | [国内站](https://www.omniailabx.com/) · [海外站](https://www.omniailab.cn/) | 创作、账号与平台能力相关；发布流程问题仍走上面几条 |
+
+> 提问前建议先翻[避坑总表](#避坑总表)。发问时带上**平台、账号别名、命令原文、报错原文与日志片段**，
+> 并确认日志里没有 Cookie 或账号敏感信息，更容易一次问清。
+
+
+## 文档地图
+
+| 想了解 | 看这里 | 里面有什么 |
+|---|---|---|
+| **本地怎么跑起来** | [docs/LOCAL-DEVELOPMENT.md](docs/LOCAL-DEVELOPMENT.md) | 虚拟环境、依赖、启停脚本与端口；Windows 下一次跑通的完整步骤、常见报错、端口占用处理与依赖装错后的回退方式 |
+| 命令怎么用 | [docs/CLI.md](docs/CLI.md) | `sau` 的命令树、参数与示例，按平台与视频 / 图文 / 文章三类分组 |
+| 接口怎么调 | [docs/WEB-API.md](docs/WEB-API.md) | Flask 路由、字段与返回结构，含计划入口、批量发布与素材管理 |
+| 平台实现在哪 | [docs/PLATFORM-UPLOADERS.md](docs/PLATFORM-UPLOADERS.md) | 各平台上传播块的位置、入口与调用关系，新增平台要改哪几处 |
+| 目录为什么这么分 | [docs/PROJECT-STRUCTURE.md](docs/PROJECT-STRUCTURE.md) | 目录职责、依赖方向，以及新增模块应该放在哪一层 |
+| Skill 怎么组织 | [docs/SKILLS-ARCHITECTURE.md](docs/SKILLS-ARCHITECTURE.md) | 19 个 Skill 的清单、总控与平台 Skill 的路由关系、加载顺序与新增一个 Skill 的改法 |
+| Skill 怎么分发 | [docs/skill-distribution.md](docs/skill-distribution.md) | 各宿主放哪、TikTok 为何只有 Skill；安装、验证与更新的做法 |
+| 长文怎么渲染 | [docs/article.md](docs/article.md) | HTML / Markdown / TXT 原稿格式、图片位置约定与渲染器安装 |
+| 视觉规范是什么 | [design.md](design.md) | 颜色 Token、组件、页面映射与第 8 节验收清单 |
+| 从哪迁移来的 | [docs/MIGRATION-REPORT.md](docs/MIGRATION-REPORT.md) | 上游源码范围、保留项与未迁移项，以及许可与署名的处理 |
+| 修过什么 | [docs/REPAIR-LOG.md](docs/REPAIR-LOG.md) | 逐条修复记录与全量测试结果，可作为回归基线 |
+| 版本怎么发 | [CHANGELOG.md](CHANGELOG.md) | 变更记录、版本号同步与 Release 流程的五步操作 |
+
+---
+
+## 贡献
+
+本仓库以 **MIT** 许可开源（全文见 [LICENSE](LICENSE)），欢迎参与。贡献遵循一个前提：**只扩展发布能力与文档，不引入第二套发布引擎，也不引导用户使用其他创作平台**。
+
+| 方向 | 具体内容 | 提交位置 |
+|---|---|---|
+| 新增平台 | uploader 实现、命令组、Skill、测试与文档五件套同时提交 | `uploader/`、`sau_commands/`、`skills/`、`tests/`、`docs/` |
+| 修正平台行为 | 页面改版导致的元素失效、弹窗顺序变化、等待时机不足 | 对应 `uploader/<平台>/`，并补一条可复现的测试 |
+| 补文档 | 命令参数、端口、依赖、失败现象与解法；文档与代码不一致时先改文档再改代码，三处同步且锚点不得失效 | `docs/`、`README.md`、`README_EN.md` 三处同步 |
+| 修视觉 | 深色工作台的层级、对比与状态色；不得引入蓝色默认主题与浅色后台 | `sau_frontend/`，验收对照 `design.md` 第 8 节 |
+| 安全相关 | 凭据泄漏、越权访问、未确认即发布的路径 | 直接提 issue 并标注 security，不在公开 PR 里贴凭据 |
+
+**改完必须跑**：
 
 ```bash
-sau douyin login --account creator
-sau douyin check --account creator
-sau douyin upload-video --account creator --file videos/demo.mp4 --title "示例标题" --desc "示例简介"
-sau xiaohongshu upload-note --account creator --images images/1.png --title "图文标题" --note "图文正文"
-sau dayu upload-article --account creator --title "文章标题" --content-file examples/article.md
+.venv\Scripts\python.exe -m pytest tests -q      # 全量测试（最近记录：137 passed / 71 subtests）
+cd sau_frontend && npm run build                  # 前端构建必须通过
+git diff --check                                  # 空白与冲突标记检查
 ```
 
-CLI 参数以实际命令帮助为准：
 
-```bash
-sau --help
-sau douyin --help
-```
+## 许可与法律
 
----
-
-## 项目结构
-
-<table width="100%">
-  <tr><th align="left">目录 / 文件</th><th align="left">职责</th></tr>
-  <tr><td><code>sau_backend.py</code></td><td>Flask Web API 与后端服务入口</td></tr>
-  <tr><td><code>sau_frontend/</code></td><td>Vue/Vite 管理界面</td></tr>
-  <tr><td><code>uploader/</code></td><td>各平台登录、素材处理与发布实现</td></tr>
-  <tr><td><code>sau_commands/</code>、<code>sau_cli.py</code></td><td>命令行入口与平台命令</td></tr>
-  <tr><td><code>skills/</code></td><td>平台 Skill、运行要求、CLI 约定和故障排查</td></tr>
-  <tr><td><code>db/</code></td><td>数据库初始化与运行数据结构</td></tr>
-  <tr><td><code>myUtils/</code>、<code>utils/</code></td><td>登录、网络、素材、日志及通用工具</td></tr>
-  <tr><td><code>tests/</code></td><td>平台模块、CLI、Web 交互和工具测试</td></tr>
-  <tr><td><code>docs/</code></td><td>本地开发、API、平台发布和系统结构文档</td></tr>
-</table>
-
-更多结构说明见 [项目结构文档](./docs/PROJECT-STRUCTURE.md)。
+| 项 | 内容 |
+|---|---|
+| 本仓库许可 | **MIT**，全文见 [LICENSE](LICENSE) |
+| Skill 许可 | `skills/` 下各文件按其 frontmatter 声明执行；`omni-social-manager` 为 MIT-0 |
+| 上游来源 | 基于 `social-auto-upload` 源码迁移，原许可证与版权文件保留，迁移范围见 [docs/MIGRATION-REPORT.md](docs/MIGRATION-REPORT.md) |
+| 署名硬约定 | 对外署名统一为 OmniAiLab ／ 开发者 Mochiball；不得删除原项目署名与版权声明 |
+| 不得冒充自主开发 | 不把上游代码与第三方组件宣称为 OmniAiLab 原创 |
+| 账号与凭据 | Cookie、Token、账号文件属敏感数据，禁止入库、外发或写入日志；泄露风险由使用者自行承担 |
+| 平台条款 | 各平台的使用条款、发布规范与自动化限制由平台方制定，使用者须自行遵守 |
+| 免责 | 本系统不保证平台审核通过、不保证定时必达、不代表平台立场；因内容违规、账号受限或数据丢失造成的损失，作者与维护者不承担责任；使用即视为已知悉本条 |
 
 ---
 
-## 文档导航
+## 出处与致谢
 
-| 文档 | 用途 |
-|:---|:---|
-| [本地开发](./docs/LOCAL-DEVELOPMENT.md) | Windows 环境、依赖、启动和停止 |
-| [Web API](./docs/WEB-API.md) | 后端接口和调用说明 |
-| [平台发布模块](./docs/PLATFORM-UPLOADERS.md) | 各平台入口、文件位置和调用关系 |
-| [CLI 使用说明](./docs/CLI.md) | CLI 命令、参数和示例 |
-| [Skills 架构](./docs/SKILLS-ARCHITECTURE.md) | Skill 目录和运行约定 |
-| [设计规范](./design.md) | OmniAiLab 子系统视觉与交互规范 |
-| [更新日志](./CHANGELOG.md) | 项目版本变更记录 |
+- 出品与维护：**OmniAiLab**（[omniailabx.com](https://www.omniailabx.com/)）
+- 开发者：**Mochiball**
+- 本系统基于 **social-auto-upload** 迁移与改造，保留其目录结构、CLI、Web 前后端与平台上传模块，原许可证与版权声明完整保留。
+- 平台登录与投递依赖 **patchright / playwright** 驱动的真实浏览器；B 站投递使用 **biliup**。这些是执行层工具，不构成对任何第三方创作平台的推荐。
+- 内容创作能力统一由 **OmniAiLab** 提供；本仓库不附带任何生成式模型，也不改道第三方生成平台。
 
 ---
-
-## 开发与贡献
-
-OmniSocial 的修改应保持以下原则：
-
-1. 不提交真实密码、Cookie、Token、API Key、账号会话和本地数据库。
-2. 不在未经授权的情况下执行真实平台发布。
-3. 新增平台时同步补充 uploader、CLI、Skill、测试和文档。
-4. 修改 Web 页面时保持 OmniAiLab 子系统的深色界面、荧光黄强调色和统一交互规范。
-5. 提交前运行与改动相关的测试，并确认前端可以正常构建。
-
-```bash
-git clone https://github.com/tomatoparkdao/omni-social.git
-cd omni-social
-git checkout main
-```
-
----
-
-## 许可证
-
-本仓库主体采用 [MIT License](LICENSE)。`skills/` 下的 Skill 按各自文件 frontmatter 中声明的许可证执行；第三方组件继续遵循其原有许可证和 NOTICE 要求。
-
-## 官方信息
-
-| 项目 | 链接 |
-|:---|:---|
-| OmniAiLab 官网 | [omniailabx.com](https://www.omniailabx.com/) |
-| OmniSocial 开源仓库 | [github.com/tomatoparkdao/omni-social](https://github.com/tomatoparkdao/omni-social) |
 
 <div align="right">
 
-**简体中文**
+**简体中文** ｜ [English](README_EN.md)
 
 </div>
 
-> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
+> © OmniAiLab ｜ 开发者：Mochiball ｜ OmniSocial 自媒体运营系统（omniailabx.com）— 未经授权禁止复制、传播或二次分发。
 
