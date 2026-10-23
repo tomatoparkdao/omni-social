@@ -1,0 +1,57 @@
+// 颜色变量
+$primary-color: #c8ff00;
+$success-color: #45c58b;
+$warning-color: #e8b85c;
+$danger-color: #ef6a71;
+$info-color: #91959d;
+$accent-color: #c8ff00;
+
+// 文字颜色
+$text-primary: #f7f7f7;
+$text-regular: #c5c7cc;
+$text-secondary: #91959d;
+$text-tertiary: #91959d;
+$text-placeholder: #5f636b;
+
+// 边框颜色
+$border-base: #363636;
+$border-strong: #4a4a4a;
+$border-light: #2b2b2b;
+$border-lighter: #242424;
+$border-extra-light: #1c1c1c;
+
+// 背景颜色
+$bg-color: #1c1c1c;
+$bg-color-page: #0f1113;
+$bg-color-overlay: #232323;
+
+// 字体大小
+$font-size-extra-large: 20px;
+$font-size-large: 18px;
+$font-size-medium: 16px;
+$font-size-base: 14px;
+$font-size-small: 13px;
+$font-size-extra-small: 12px;
+
+// 间距
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+// 圆角
+$border-radius-base: 6px;
+$border-radius-small: 4px;
+$border-radius-round: 20px;
+$border-radius-circle: 50%;
+
+// 阴影
+$box-shadow-base: inset 0 1px 0 rgba(255, 255, 255, .05), 0 1px 2px rgba(0, 0, 0, .32), 0 12px 32px -8px rgba(0, 0, 0, .38);
+$box-shadow-dark: inset 0 1px 0 rgba(255, 255, 255, .06), 0 2px 6px rgba(0, 0, 0, .4), 0 24px 56px -8px rgba(0, 0, 0, .5);
+$box-shadow-light: $box-shadow-base;
+
+// 层级
+$z-index-normal: 1;
+$z-index-top: 1000;
+$z-index-popper: 2000;
