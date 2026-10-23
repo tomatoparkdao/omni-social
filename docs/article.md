@@ -47,7 +47,7 @@ sau article render --content-file article.html --output output/preview.html
 | `modern` | 暖色、圆角、宽松行距 |
 | `plain` | 只转换标题、段落、列表等结构，使用目标平台原生排版 |
 
-Markdown 省略 `--theme` 时使用 `default`。HTML/TXT 不接受 `--theme`，不会再次套用主题。四套彩色主题使用 [baoyu-md](https://github.com/JimLiu/baoyu-skills/tree/main/packages/baoyu-md) 渲染。
+Markdown 省略 `--theme` 时使用 `default`。HTML/TXT 不接受 `--theme`，不会再次套用主题。主题由 OmniSocial 内置的本地渲染依赖生成，渲染过程不要求用户跳转到其他创作平台。
 
 ## 正文和图片
 
@@ -80,3 +80,4 @@ sau dayu upload-article --account creator --title "如何阅读作品数据面�
 需要大鱼号原生排版时可显式指定 `--theme plain`。斜体、代码块、用户输入的表格等未接入格式会在上传前报错。其他要求见 [大鱼号图文发布](./dayu-article.md)。
 
 > © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
+

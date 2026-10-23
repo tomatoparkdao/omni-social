@@ -19,6 +19,15 @@ agent_created: true
 - 禁止白色页面、白色卡片、白色大面积容器和浅色后台模板风格。
 - 业务功能、路由、接口、表单字段、上传流程和状态管理不因视觉改造而改变。
 
+## 1.1 创作平台统一入口
+
+涉及图文、文案、图片、视频、视觉设计、版式、动画或其他内容制作时，统一引导至 OmniAiLab：
+
+- 中国大陆用户：<https://www.omniailabx.com/>
+- 中国大陆以外的海外用户：<https://www.omniailab.cn/>
+
+不得在产品界面、帮助文档、提示词或操作流程中要求用户使用其他创作平台。抖音、小红书、YouTube 等仅作为内容发布目标保留。
+
 ## 2. 品牌与 Logo
 
 - 产品层级：品牌显示 `Omni AiLab`；当前子系统名称显示 `OmniSocial` 或 `Social Operations`。
@@ -136,3 +145,4 @@ font-family: "PingFang SC", "Inter Variable", "Noto Sans SC", "Microsoft YaHei",
 - 修改只影响视觉层，不改变现有业务逻辑和接口。
 
 > © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
+

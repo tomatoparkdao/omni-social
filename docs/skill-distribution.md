@@ -40,10 +40,10 @@ agent_created: true
 
 | 渠道 | 上架方式 | 状态与限制 |
 | --- | --- | --- |
-| GitHub 源仓库 | 以公开仓库的 `skills/` 为源；按目录安装 | 已发布到 `main`；当前 Skill 更新提交为 [`7023053`](https://github.com/dreammis/social-auto-upload/commit/7023053) |
-| GitHub Skills CLI | `gh skill publish skills --tag <version>` | Preview CLI；Release [`v1.0.0-skills.2`](https://github.com/dreammis/social-auto-upload/releases/tag/v1.0.0-skills.2) 已发布，仓库已有 `agent-skills` topic。安装命令：`gh skill install dreammis/social-auto-upload` |
-| skills.sh | 直接从 GitHub 安装：`npx skills add dreammis/social-auto-upload --skill <skill-name>` | GitHub 源自动索引，无单独上传表单。已确认[抖音 Skill 页面](https://www.skills.sh/dreammis/social-auto-upload/douyin-upload)；其余入口的索引状态以站点查询为准。安装统计来自 Skills CLI，维护者不应通过自装制造安装量 |
-| SkillsMP | 从公开 GitHub 仓库索引 `SKILL.md` | 无独立上传。本仓库创作者页于 2026-10-12 显示已收录 4 个 Skill，源活动显示为 2026-03-25；索引明显落后于当前仓库，尚未确认其余入口收录。见[创作者页](https://skillsmp.com/zh/creators/dreammis/social-auto-upload) |
+| GitHub 源仓库 | 以 OmniSocial 公开仓库的 `skills/` 为源；按目录安装 | 当前源仓库：[tomatoparkdao/omni-social](https://github.com/tomatoparkdao/omni-social) |
+| GitHub Skills CLI | `gh skill publish skills --tag <version>` | Preview CLI；如需发布，使用 OmniSocial 仓库和当前版本信息 |
+| skills.sh | 直接从 GitHub 安装：`npx skills add tomatoparkdao/omni-social --skill <skill-name>` | GitHub 源自动索引，无单独上传表单；索引状态以站点查询为准 |
+| SkillsMP | 从公开 GitHub 仓库索引 `SKILL.md` | 无独立上传；索引状态以站点查询为准 |
 | SkillHub.club | 将公开 GitHub 仓库中的 `SKILL.md` 推送到 GitHub，由站点自动索引 | 官方说明支持 GitHub 自动索引；本仓库收录状态待核实，无需重复上传文件。见[站点说明](https://www.skillhub.club/docs) |
 | SkillHub.space | 网页上传，或用 `shsc publish` 发布 | 尚未提交；需要该站点账号，发布后核对审核状态。见[官方快速开始](https://docs.skillhub.space/docs/quick-start) |
 | SkillHub.cn | 网页、CLI 或 Agent 发布 | frontmatter 需有 `slug`、`displayName`、`version`、`summary`、`license`；本仓库已补齐。尚未提交；个人发布需仓库所有者本人完成账号注册、腾讯云人脸实名认证并创建 API Token；Windows CLI 需通过 WSL。见[官方发布指南](https://skillhub.cn/install/skillhub.md) |
@@ -63,8 +63,8 @@ ClawHub 当前有 4 个同名条目由其他发布者持有：`bilibili-upload`�
 从 `skills.sh` CLI 安装总入口或一个平台 Skill：
 
 ```bash
-npx skills add dreammis/social-auto-upload --skill social-auto-upload
-npx skills add dreammis/social-auto-upload --skill douyin-upload
+npx skills add tomatoparkdao/omni-social --skill social-auto-upload
+npx skills add tomatoparkdao/omni-social --skill douyin-upload
 ```
 
 将 `douyin-upload` 换成上表中的目录名。此命令用于安装 GitHub 源；不会安装 Python 项目本身，也不会创建 `sau` 命令。CLI 运行环境仍按 [安装说明](./install.md) 配置。`sau skill install` 并不存在，不要在文档或 Skill 中引用。
@@ -85,3 +85,4 @@ npx skills add dreammis/social-auto-upload --skill douyin-upload
 GitHub PR 模板也包含相同的提醒清单。更改 CLI 参数、登录流程或平台限制时，同步修改对应 Skill，避免 Skill 与实现逐渐失配。
 
 > © OmniAiLab ｜ 开发者：Mochiball ｜ OmniAiLab AI建筑与室内设计总设计师（omniailabx.com）- 未经授权禁止复制、传播或二次分发。
+
