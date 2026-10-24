@@ -18,10 +18,10 @@ RUN pip install --no-cache-dir -r requirements.txt gunicorn==23.0.0 && \
 COPY . .
 COPY --from=frontend /build/dist/ /app/
 RUN cp conf.example.py conf.py && \
-    mkdir -p /app/db /app/videoFile /app/cookiesFile /app/cookies && \
+    mkdir -p /app/db /app/videoFile /app/cookiesFile /app/cookies /app/logs && \
     useradd --system --home /app --shell /usr/sbin/nologin omnisocial && \
-    chown -R omnisocial:omnisocial /app/db /app/videoFile /app/cookiesFile /app/cookies && \
-    chmod 700 /app/db /app/videoFile /app/cookiesFile /app/cookies
+    chown -R omnisocial:omnisocial /app/db /app/videoFile /app/cookiesFile /app/cookies /app/logs && \
+    chmod 700 /app/db /app/videoFile /app/cookiesFile /app/cookies /app/logs
 USER omnisocial
 EXPOSE 5409
 CMD ["gunicorn", "--bind", "0.0.0.0:5409", "--workers", "1", "--threads", "8", "--timeout", "300", "sau_backend:app"]
