@@ -15,12 +15,20 @@
 
 ## 安全检查
 
-- 默认只生成计划，不执行真实发布。
-- 真实发布必须得到用户明确确认，并再次核对平台、账号、素材、标题、正文、标签和发布时间。
+- 当前任务期间绝对禁止真实平台最终发布；`OMNISOCIAL_ENABLE_REAL_PUBLISH` 默认关闭，Web、CLI 与旧版发布入口均会拒绝执行。不要为测试或演示开启此开关。
+- 图文、视频、队列和结果测试只能使用 Mock 适配器与隔离测试数据；不得点击真实平台的最终发布、发送或提交按钮。
 - 不索取或写入密码、Token、Cookie；不覆盖账号信息，不删除登录状态。
 - 素材路径必须存在且位于用户明确授权范围；账号状态只读检查。
 - 失败、超时或未知结果必须如实报告，不重复提交。
+- 不把真实会话文件、SQLite 账号数据、浏览器 Profile、二维码、`.env` 或日志加入 Git；提交前运行离线秘密扫描。
 
 ## 实现边界
 
 保留 `uploader/` 为唯一发布引擎。Skill 只负责说明、路由和安全编排，不在 Skill 中重写浏览器自动化或平台发布逻辑。网页自然语言入口使用 `/agent/plan` 生成非执行计划，未来扩展时也必须遵守上述确认规则。
+
+## 验证
+
+- Python：`.venv\\Scripts\\python.exe -m unittest discover -s tests -q`；浏览器 E2E 需本地前后端运行。
+- 前端：在 `sau_frontend/` 执行 `npm run build`。
+- Windows 服务：`start-omnisocial.bat` / `stop-omnisocial.bat`，只停止本项目记录的进程。
+- 当前 Web 任务是草稿，测试 Worker 只在 `OMNISOCIAL_ENV=test` 下执行 Mock；`sau_publish_worker.py` 受同一真实发布闸门保护，当前不得启动；不要把模拟成功或 `submitted_unverified` 解读为真实平台发布成功。

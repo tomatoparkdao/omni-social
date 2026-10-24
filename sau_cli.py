@@ -11,6 +11,7 @@ from sau_commands import (
     hupu, facebook, facebook_page, instagram, youtube, baijiahao, dayu, xueqiu, zhihu,
 )
 from sau_commands.arguments import resolve_account_file
+from myUtils.publish_guard import require_real_publish_enabled
 
 
 PLATFORMS = {
@@ -47,6 +48,8 @@ async def dispatch(args: argparse.Namespace) -> int:
     """只按平台分发，不在入口重复平台的业务判断。"""
     if args.platform not in PLATFORMS:
         raise RuntimeError(f"Unsupported platform: {args.platform}")
+    if args.action.startswith("upload-"):
+        require_real_publish_enabled()
     return await PLATFORMS[args.platform].run(args)
 
 

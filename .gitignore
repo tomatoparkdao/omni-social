@@ -185,6 +185,7 @@ package-lock.json
 
 # database
 db/database.db
+/db/backups/
 
 # 本地运行数据、日志和个人素材（不进入公开仓库）
 /logs/

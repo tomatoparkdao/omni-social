@@ -1,8 +1,10 @@
 import asyncio
 import base64
 import json
+import importlib.util
 import logging
 import os
+import secrets
 import sqlite3
 import threading
 import time
@@ -10,22 +12,80 @@ import uuid
 from pathlib import Path
 from contextlib import closing
 from queue import Empty, Queue
-from flask_cors import CORS
 from myUtils.auth import check_cookie
-from flask import Flask, request, jsonify, Response, render_template, send_from_directory
+from flask import Flask, request, jsonify, Response, render_template, send_from_directory, session
+from werkzeug.security import check_password_hash
+from urllib.parse import urlparse
 from werkzeug.utils import secure_filename
 from conf import BASE_DIR
 from myUtils.login import get_tencent_cookie, douyin_cookie_gen, get_ks_cookie
 from myUtils.postVideo import post_video_tencent, post_video_DouYin, post_video_ks, post_video_xhs
+from myUtils.publish_guard import require_real_publish_enabled
+from myUtils import task_store
+from myUtils.db_schema import ensure_schema
 from uploader.xiaohongshu_uploader.main import cookie_auth as xiaohongshu_cookie_auth, xiaohongshu_setup
 
 login_logger = logging.getLogger(__name__)
 
 active_queues = {}
+active_login_cancellations = {}
 app = Flask(__name__)
+ensure_schema(BASE_DIR)
+app.secret_key = os.environ.get('OMNISOCIAL_SESSION_SECRET') or secrets.token_bytes(32)
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Strict',
+    SESSION_COOKIE_SECURE=os.environ.get('OMNISOCIAL_ENV') == 'production',
+)
 
-#允许所有来源跨域访问
-CORS(app)
+# 开发和生产前端均使用同源代理访问 API。
+
+
+def production_mode():
+    return os.environ.get('OMNISOCIAL_ENV') == 'production'
+
+
+@app.before_request
+def protect_web_api():
+    app.config['SESSION_COOKIE_SECURE'] = production_mode()
+    if production_mode():
+        if not os.environ.get('OMNISOCIAL_SESSION_SECRET') or not os.environ.get('OMNISOCIAL_ADMIN_PASSWORD_HASH'):
+            return jsonify({'code': 503, 'msg': '生产环境身份认证未配置'}), 503
+    elif request.remote_addr not in {'127.0.0.1', '::1'}:
+        return jsonify({'code': 403, 'msg': '开发模式只允许本机访问'}), 403
+
+    if request.method not in {'GET', 'HEAD', 'OPTIONS'}:
+        origin = request.headers.get('Origin')
+        if origin:
+            parsed = urlparse(origin)
+            allowed = {request.host}
+            if not production_mode():
+                allowed.update({'127.0.0.1:5173', 'localhost:5173'})
+            if parsed.scheme not in {'http', 'https'} or parsed.netloc not in allowed:
+                return jsonify({'code': 403, 'msg': '请求来源不被允许'}), 403
+        elif production_mode() and request.path != '/auth/session':
+            return jsonify({'code': 403, 'msg': '缺少请求来源'}), 403
+
+    if production_mode() and request.path not in {'/auth/session', '/health', '/favicon.ico', '/vite.svg'}:
+        if request.path != '/' and not request.path.startswith('/assets/') and not session.get('authenticated'):
+            return jsonify({'code': 401, 'msg': '请先登录 OmniSocial'}), 401
+
+
+@app.route('/auth/session', methods=['GET', 'POST', 'DELETE'])
+def auth_session():
+    if not production_mode():
+        return jsonify({'code': 200, 'authenticated': True, 'mode': 'local'}), 200
+    if request.method == 'GET':
+        return jsonify({'code': 200, 'authenticated': bool(session.get('authenticated')), 'mode': 'production'}), 200
+    if request.method == 'DELETE':
+        session.clear()
+        return jsonify({'code': 200, 'authenticated': False}), 200
+    password = (request.get_json(silent=True) or {}).get('password', '')
+    if not isinstance(password, str) or not check_password_hash(os.environ['OMNISOCIAL_ADMIN_PASSWORD_HASH'], password):
+        return jsonify({'code': 401, 'msg': '登录失败'}), 401
+    session.clear()
+    session['authenticated'] = True
+    return jsonify({'code': 200, 'authenticated': True}), 200
 
 @app.route('/agent/plan', methods=['POST'])
 def agent_plan():
@@ -44,6 +104,63 @@ def agent_plan():
             "required_fields": ["platforms", "content_type", "account", "files", "title", "body", "schedule"],
         },
     })
+
+
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({'code': 200, 'status': 'ok', 'real_publish_enabled': os.environ.get('OMNISOCIAL_ENABLE_REAL_PUBLISH') == '1'}), 200
+
+
+@app.route('/system/status', methods=['GET'])
+def system_status():
+    return jsonify({'code': 200, 'data': {
+        'mode': os.environ.get('OMNISOCIAL_ENV', 'local'),
+        'database_ready': (Path(BASE_DIR) / 'db' / 'database.db').is_file(),
+        'material_storage_ready': (Path(BASE_DIR) / 'videoFile').is_dir(),
+        'browser_library_ready': importlib.util.find_spec('patchright') is not None,
+        'real_publish_enabled': os.environ.get('OMNISOCIAL_ENABLE_REAL_PUBLISH') == '1',
+    }}), 200
+
+
+@app.route('/tasks', methods=['GET', 'POST'])
+def tasks_api():
+    if request.method == 'GET':
+        return jsonify({'code': 200, 'data': task_store.list_tasks(BASE_DIR)}), 200
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        return jsonify({'code': 400, 'msg': '任务必须是 JSON 对象'}), 400
+    try:
+        task, created = task_store.create_task(BASE_DIR, payload)
+    except ValueError as exc:
+        return jsonify({'code': 400, 'msg': str(exc)}), 400
+    return jsonify({'code': 200, 'data': task, 'created': created}), 200
+
+
+@app.route('/tasks/<task_id>/cancel', methods=['POST'])
+def cancel_task_api(task_id):
+    if not task_store.cancel_task(BASE_DIR, task_id):
+        return jsonify({'code': 409, 'msg': '任务不存在或当前状态无法取消'}), 409
+    return jsonify({'code': 200, 'msg': '任务已取消'}), 200
+
+
+@app.route('/tasks/<task_id>/queue', methods=['POST'])
+def queue_task_api(task_id):
+    try:
+        require_real_publish_enabled()
+    except PermissionError:
+        return jsonify({'code': 403, 'msg': '真实发布已关闭；仅可保存草稿'}), 403
+    if not task_store.enqueue_task(BASE_DIR, task_id):
+        return jsonify({'code': 409, 'msg': '任务不存在或已进入队列'}), 409
+    return jsonify({'code': 200, 'msg': '任务已排队；尚未向平台提交'}), 200
+
+
+@app.route('/tasks/<task_id>/simulate', methods=['POST'])
+def simulate_task_api(task_id):
+    if os.environ.get('OMNISOCIAL_ENV') != 'test':
+        return jsonify({'code': 403, 'msg': '模拟队列只在隔离测试环境可用'}), 403
+    if not task_store.enqueue_mock(BASE_DIR, task_id):
+        return jsonify({'code': 409, 'msg': '任务不存在或状态不允许排队'}), 409
+    return jsonify({'code': 200, 'msg': '任务已加入模拟队列'}), 200
 
 # 限制上传文件大小为160MB
 app.config['MAX_CONTENT_LENGTH'] = 160 * 1024 * 1024
@@ -142,6 +259,8 @@ def upload_save():
         filename = secure_filename(file.filename)
     if not filename:
         return jsonify({"code": 400, "data": None, "msg": "Invalid filename"}), 400
+    if Path(filename).suffix.lower() not in {'.mp4', '.mov', '.avi', '.mkv', '.m4v', '.webm', '.jpg', '.jpeg', '.png', '.webp'}:
+        return jsonify({"code": 400, "data": None, "msg": "不支持的素材格式"}), 400
 
     try:
         # 生成 UUID v1
@@ -153,6 +272,7 @@ def upload_save():
         filepath = Path(BASE_DIR / "videoFile" / f"{uuid_v1}_{filename}")
 
         # 保存文件
+        filepath.parent.mkdir(parents=True, exist_ok=True)
         file.save(filepath)
 
         with sqlite3.connect(Path(BASE_DIR / "db" / "database.db")) as conn:
@@ -161,6 +281,7 @@ def upload_save():
                                 INSERT INTO file_records (filename, filesize, file_path)
             VALUES (?, ?, ?)
                                 ''', (filename, round(float(os.path.getsize(filepath)) / (1024 * 1024),2), final_filename))
+            material_id = cursor.lastrowid
             conn.commit()
             print("✅ 上传文件已记录")
 
@@ -169,7 +290,8 @@ def upload_save():
             "msg": "File uploaded and saved successfully",
             "data": {
                 "filename": filename,
-                "filepath": final_filename
+                "filepath": final_filename,
+                "id": material_id
             }
         }), 200
 
@@ -231,11 +353,7 @@ def getAccounts():
             cursor.execute('''
             SELECT * FROM user_info''')
             rows = cursor.fetchall()
-            rows_list = [list(row) for row in rows]
-
-            print("\n📋 当前数据表内容（快速获取）：")
-            for row in rows:
-                print(row)
+            rows_list = [[row[0], row[1], None, row[3], row[4]] for row in rows]
 
             return jsonify(
                 {
@@ -260,9 +378,6 @@ async def getValidAccounts():
         SELECT * FROM user_info''')
         rows = cursor.fetchall()
         rows_list = [list(row) for row in rows]
-        print("\n📋 当前数据表内容：")
-        for row in rows:
-            print(row)
         for row in rows_list:
             if row[1] == 1:
                 flag = await xiaohongshu_cookie_auth(Path(BASE_DIR / "cookiesFile" / row[2]))
@@ -277,8 +392,8 @@ async def getValidAccounts():
                 ''', (0,row[0]))
                 conn.commit()
                 print("✅ 用户状态已更新")
-        for row in rows:
-            print(row)
+        for row in rows_list:
+            row[2] = None  # Cookie 文件名属于服务端内部信息
         return jsonify(
                         {
                             "code": 200,
@@ -286,7 +401,7 @@ async def getValidAccounts():
                             "data": rows_list
                         }),200
 
-@app.route('/deleteFile', methods=['GET'])
+@app.route('/deleteFile', methods=['DELETE'])
 def delete_file():
     file_id = request.args.get('id')
 
@@ -317,7 +432,10 @@ def delete_file():
             record = dict(record)
 
             # 获取文件路径并删除实际文件
-            file_path = Path(BASE_DIR / "videoFile" / record['file_path'])
+            material_root = Path(BASE_DIR / "videoFile").resolve()
+            file_path = (material_root / record['file_path']).resolve()
+            if not file_path.is_relative_to(material_root):
+                return jsonify({"code": 400, "msg": "素材路径无效", "data": None}), 400
             if file_path.exists():
                 try:
                     file_path.unlink()  # 删除文件
@@ -348,7 +466,7 @@ def delete_file():
             "data": None
         }), 500
 
-@app.route('/deleteAccount', methods=['GET'])
+@app.route('/deleteAccount', methods=['DELETE'])
 def delete_account():
     account_id = request.args.get('id')
 
@@ -382,13 +500,16 @@ def delete_account():
 
             # 删除关联的cookie文件
             if record.get('filePath'):
-                cookie_file_path = Path(BASE_DIR / "cookiesFile" / record['filePath'])
+                cookie_root = Path(BASE_DIR / "cookiesFile").resolve()
+                cookie_file_path = (cookie_root / record['filePath']).resolve()
+                if not cookie_file_path.is_relative_to(cookie_root):
+                    return jsonify({"code": 400, "msg": "账号会话路径无效", "data": None}), 400
                 if cookie_file_path.exists():
                     try:
                         cookie_file_path.unlink()
-                        print(f"✅ Cookie文件已删除: {cookie_file_path}")
+                        login_logger.info("用户主动删除账号后，关联会话文件已移除")
                     except Exception as e:
-                        print(f"⚠️ 删除Cookie文件失败: {e}")
+                        login_logger.error("删除账号关联会话文件失败：%s", e.__class__.__name__)
 
             # 删除数据库记录
             cursor.execute("DELETE FROM user_info WHERE id = ?", (account_id,))
@@ -417,15 +538,24 @@ def login():
     id = request.args.get('id')
     if type not in {'1', '2', '3', '4'} or not id or not id.strip():
         return jsonify({"code": 400, "msg": "平台类型或账号名称无效"}), 400
+    if id in active_queues:
+        return jsonify({"code": 409, "msg": "该账号的登录会话仍在进行"}), 409
 
     # 模拟一个用于异步通信的队列
     status_queue = Queue()
+    cancel_event = threading.Event()
     active_queues[id] = status_queue
+    active_login_cancellations[id] = cancel_event
     # 启动异步任务线程
-    thread = threading.Thread(target=run_async_function, args=(type,id,status_queue), daemon=True)
+    thread = threading.Thread(target=run_async_function, args=(type,id,status_queue,cancel_event), daemon=True)
     thread.start()
     response = Response(sse_stream(status_queue), mimetype='text/event-stream')
-    response.call_on_close(lambda: active_queues.pop(id, None) if active_queues.get(id) is status_queue else None)
+    def finish_login_session():
+        cancel_event.set()
+        if active_queues.get(id) is status_queue:
+            active_queues.pop(id, None)
+            active_login_cancellations.pop(id, None)
+    response.call_on_close(finish_login_session)
     response.headers['Cache-Control'] = 'no-cache'
     response.headers['X-Accel-Buffering'] = 'no'  # 关键：禁用 Nginx 缓冲
     response.headers['Content-Type'] = 'text/event-stream'
@@ -434,6 +564,10 @@ def login():
 
 @app.route('/postVideo', methods=['POST'])
 def postVideo():
+    try:
+        require_real_publish_enabled()
+    except PermissionError as exc:
+        return jsonify({"code": 403, "msg": str(exc), "data": None}), 403
     # 获取JSON数据
     data = request.get_json()
 
@@ -470,8 +604,6 @@ def postVideo():
         return jsonify({"code": 400, "msg": "标题不能为空", "data": None}), 400
 
     # 打印获取到的数据（仅作为示例）
-    print("File List:", file_list)
-    print("Account List:", account_list)
 
     try:
         match type:
@@ -498,10 +630,10 @@ def postVideo():
                 "data": None
             }), 200
     except Exception as e:
-        print(f"发布视频时出错: {str(e)}")
+        login_logger.error("旧版发布入口失败：%s", e.__class__.__name__)
         return jsonify({
             "code": 500,
-            "msg": f"发布失败: {str(e)}",
+            "msg": "发布失败，请查看服务端错误代码",
             "data": None
         }), 500
 
@@ -545,6 +677,10 @@ def updateUserinfo():
 
 @app.route('/postVideoBatch', methods=['POST'])
 def postVideoBatch():
+    try:
+        require_real_publish_enabled()
+    except PermissionError as exc:
+        return jsonify({"code": 403, "msg": str(exc), "data": None}), 403
     data_list = request.get_json()
 
     if not isinstance(data_list, list):
@@ -568,8 +704,6 @@ def postVideoBatch():
         daily_times = data.get('dailyTimes')
         start_days = data.get('startDays')
         # 打印获取到的数据（仅作为示例）
-        print("File List:", file_list)
-        print("Account List:", account_list)
         match type:
             case 1:
                 post_video_xhs(title, file_list, tags, account_list, category, enableTimer, videos_per_day, daily_times,
@@ -594,129 +728,20 @@ def postVideoBatch():
 # Cookie文件上传API
 @app.route('/uploadCookie', methods=['POST'])
 def upload_cookie():
-    try:
-        if 'file' not in request.files:
-            return jsonify({
-                "code": 400,
-                "msg": "没有找到Cookie文件",
-                "data": None
-            }), 400
-
-        file = request.files['file']
-        if file.filename == '':
-            return jsonify({
-                "code": 400,
-                "msg": "Cookie文件名不能为空",
-                "data": None
-            }), 400
-
-        if not file.filename.endswith('.json'):
-            return jsonify({
-                "code": 400,
-                "msg": "Cookie文件必须是JSON格式",
-                "data": None
-            }), 400
-
-        # 获取账号信息
-        account_id = request.form.get('id')
-        platform = request.form.get('platform')
-
-        if not account_id or not platform:
-            return jsonify({
-                "code": 400,
-                "msg": "缺少账号ID或平台信息",
-                "data": None
-            }), 400
-
-        # 从数据库获取账号的文件路径
-        with sqlite3.connect(Path(BASE_DIR / "db" / "database.db")) as conn:
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute('SELECT filePath FROM user_info WHERE id = ?', (account_id,))
-            result = cursor.fetchone()
-
-        if not result:
-            return jsonify({
-                "code": 500,
-                "msg": "账号不存在",
-                "data": None
-            }), 404
-
-        # 保存上传的Cookie文件到对应路径
-        cookie_file_path = Path(BASE_DIR / "cookiesFile" / result['filePath'])
-        cookie_file_path.parent.mkdir(parents=True, exist_ok=True)
-
-        file.save(str(cookie_file_path))
-
-        # 更新数据库中的账号信息（可选，比如更新更新时间）
-        # 这里可以根据需要添加额外的处理逻辑
-
-        return jsonify({
-            "code": 200,
-            "msg": "Cookie文件上传成功",
-            "data": None
-        }), 200
-
-    except Exception as e:
-        print(f"上传Cookie文件时出错: {str(e)}")
-        return jsonify({
-            "code": 500,
-            "msg": f"上传Cookie文件失败: {str(e)}",
-            "data": None
-        }), 500
+    return jsonify({"code": 403, "msg": "网页端禁止直接覆盖 Cookie，请使用扫码重新登录", "data": None}), 403
 
 
 # Cookie文件下载API
 @app.route('/downloadCookie', methods=['GET'])
 def download_cookie():
-    try:
-        file_path = request.args.get('filePath')
-        if not file_path:
-            return jsonify({
-                "code": 500,
-                "msg": "缺少文件路径参数",
-                "data": None
-            }), 400
-
-        # 验证文件路径的安全性，防止路径遍历攻击
-        cookie_file_path = Path(BASE_DIR / "cookiesFile" / file_path).resolve()
-        base_path = Path(BASE_DIR / "cookiesFile").resolve()
-
-        if not cookie_file_path.is_relative_to(base_path):
-            return jsonify({
-                "code": 500,
-                "msg": "非法文件路径",
-                "data": None
-            }), 400
-
-        if not cookie_file_path.exists():
-            return jsonify({
-                "code": 500,
-                "msg": "Cookie文件不存在",
-                "data": None
-            }), 404
-
-        # 返回文件
-        return send_from_directory(
-            directory=str(cookie_file_path.parent),
-            path=cookie_file_path.name,
-            as_attachment=True
-        )
-
-    except Exception as e:
-        print(f"下载Cookie文件时出错: {str(e)}")
-        return jsonify({
-            "code": 500,
-            "msg": f"下载Cookie文件失败: {str(e)}",
-            "data": None
-        }), 500
+    return jsonify({"code": 403, "msg": "网页端禁止导出 Cookie", "data": None}), 403
 
 
 # 包装函数：在线程中运行异步函数
-def run_async_function(type,id,status_queue):
+def run_async_function(type,id,status_queue,cancel_event=None):
     try:
         if type == '1':
-            asyncio.run(login_xiaohongshu_web(id, status_queue))
+            asyncio.run(login_xiaohongshu_web(id, status_queue, cancel_event))
         else:
             login_action = {'2': get_tencent_cookie, '3': douyin_cookie_gen, '4': get_ks_cookie}[type]
             asyncio.run(login_action(id, status_queue))
@@ -728,7 +753,7 @@ def run_async_function(type,id,status_queue):
         status_queue.put({"type": "error", "code": code, "message": message})
 
 
-async def login_xiaohongshu_web(account_name, status_queue):
+async def login_xiaohongshu_web(account_name, status_queue, cancel_event=None):
     with closing(sqlite3.connect(Path(BASE_DIR / "db" / "database.db"))) as conn:
         existing = conn.execute(
             "SELECT id, filePath FROM user_info WHERE type = 1 AND userName = ? ORDER BY id LIMIT 1",
@@ -741,6 +766,8 @@ async def login_xiaohongshu_web(account_name, status_queue):
 
     def on_qrcode(qrcode):
         nonlocal qr_sent
+        if cancel_event and cancel_event.is_set():
+            raise RuntimeError('login_cancelled')
         image_path = Path(qrcode["image_path"])
         image = base64.b64encode(image_path.read_bytes()).decode("ascii")
         status_queue.put({"type": "qr", "image": f"data:image/png;base64,{image}"})
@@ -748,7 +775,10 @@ async def login_xiaohongshu_web(account_name, status_queue):
 
     result = await xiaohongshu_setup(
         str(account_file), handle=True, return_detail=True, qrcode_callback=on_qrcode,
+        cancel_event=cancel_event,
     )
+    if cancel_event and cancel_event.is_set():
+        return
     if not result["success"]:
         status = result.get("status", "failed")
         login_logger.warning("小红书网页登录未完成：%s", status)
@@ -787,4 +817,4 @@ def sse_stream(status_queue):
             return
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0' ,port=5409)
+    app.run(host=os.environ.get('OMNISOCIAL_BIND_HOST', '127.0.0.1'), port=5409)

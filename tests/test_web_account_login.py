@@ -2,6 +2,7 @@ import asyncio
 import json
 import sqlite3
 import tempfile
+import threading
 import unittest
 from contextlib import closing
 from pathlib import Path
@@ -12,6 +13,24 @@ import sau_backend
 
 
 class WebAccountLoginTests(unittest.TestCase):
+    def test_cancelled_login_does_not_create_account(self):
+        with tempfile.TemporaryDirectory() as root:
+            base = Path(root)
+            (base / 'db').mkdir()
+            with closing(sqlite3.connect(base / 'db' / 'database.db')) as conn:
+                conn.execute('CREATE TABLE user_info (id INTEGER PRIMARY KEY, type INTEGER, filePath TEXT, userName TEXT, status INTEGER)')
+                conn.commit()
+            cancel = threading.Event()
+            cancel.set()
+            queue = Queue()
+            with patch.object(sau_backend, 'BASE_DIR', base), patch.object(
+                sau_backend, 'xiaohongshu_setup', new=AsyncMock(return_value={'success': True})
+            ):
+                asyncio.run(sau_backend.login_xiaohongshu_web('cancel-test', queue, cancel))
+            with closing(sqlite3.connect(base / 'db' / 'database.db')) as conn:
+                self.assertEqual(conn.execute('SELECT COUNT(*) FROM user_info').fetchone()[0], 0)
+            self.assertTrue(queue.empty())
+
     def test_xiaohongshu_qr_and_verified_account_record(self):
         with tempfile.TemporaryDirectory() as root:
             base = Path(root)

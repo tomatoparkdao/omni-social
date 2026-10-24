@@ -15,16 +15,16 @@ export const materialApi = {
   
   // 删除素材
   deleteMaterial: (id) => {
-    return http.get(`/deleteFile?id=${id}`)
+    return http.delete(`/deleteFile?id=${id}`)
   },
   
   // 下载素材
   downloadMaterial: (filePath) => {
-    return `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5409'}/download/${filePath}`
+    return `${import.meta.env.VITE_API_BASE_URL || '/api'}/download/${filePath}`
   },
   
   // 获取素材预览URL
   getMaterialPreviewUrl: (filename) => {
-    return `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5409'}/getFile?filename=${filename}`
+    return `${import.meta.env.VITE_API_BASE_URL || '/api'}/getFile?filename=${encodeURIComponent(filename)}`
   }
 }

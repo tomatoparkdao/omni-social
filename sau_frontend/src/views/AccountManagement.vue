@@ -30,7 +30,7 @@
               <el-table :data="filteredAccounts" style="width: 100%">
                 <el-table-column label="头像" width="80">
                   <template #default="scope">
-                    <el-avatar :src="getDefaultAvatar(scope.row.name)" :size="40" />
+                    <el-avatar :size="40">{{ scope.row.name?.slice(0, 1) }}</el-avatar>
                   </template>
                 </el-table-column>
                 <el-table-column prop="name" label="名称" width="180" />
@@ -62,8 +62,6 @@
                 <el-table-column label="操作">
                   <template #default="scope">
                     <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
-                    <el-button size="small" type="primary" :icon="Download" @click="handleDownloadCookie(scope.row)">下载Cookie</el-button>
-                    <el-button size="small" type="info" :icon="Upload" @click="handleUploadCookie(scope.row)">上传Cookie</el-button>
                     <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
                   </template>
                 </el-table-column>
@@ -100,7 +98,7 @@
               <el-table :data="filteredKuaishouAccounts" style="width: 100%">
                 <el-table-column label="头像" width="80">
                   <template #default="scope">
-                    <el-avatar :src="getDefaultAvatar(scope.row.name)" :size="40" />
+                    <el-avatar :size="40">{{ scope.row.name?.slice(0, 1) }}</el-avatar>
                   </template>
                 </el-table-column>
                 <el-table-column prop="name" label="名称" width="180" />
@@ -132,8 +130,6 @@
                 <el-table-column label="操作">
                   <template #default="scope">
                     <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
-                    <el-button size="small" type="primary" :icon="Download" @click="handleDownloadCookie(scope.row)">下载Cookie</el-button>
-                    <el-button size="small" type="info" :icon="Upload" @click="handleUploadCookie(scope.row)">上传Cookie</el-button>
                     <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
                   </template>
                 </el-table-column>
@@ -170,7 +166,7 @@
               <el-table :data="filteredDouyinAccounts" style="width: 100%">
                 <el-table-column label="头像" width="80">
                   <template #default="scope">
-                    <el-avatar :src="getDefaultAvatar(scope.row.name)" :size="40" />
+                    <el-avatar :size="40">{{ scope.row.name?.slice(0, 1) }}</el-avatar>
                   </template>
                 </el-table-column>
                 <el-table-column prop="name" label="名称" width="180" />
@@ -202,8 +198,6 @@
                 <el-table-column label="操作">
                   <template #default="scope">
                     <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
-                    <el-button size="small" type="primary" :icon="Download" @click="handleDownloadCookie(scope.row)">下载Cookie</el-button>
-                    <el-button size="small" type="info" :icon="Upload" @click="handleUploadCookie(scope.row)">上传Cookie</el-button>
                     <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
                   </template>
                 </el-table-column>
@@ -240,7 +234,7 @@
               <el-table :data="filteredChannelsAccounts" style="width: 100%">
                 <el-table-column label="头像" width="80">
                   <template #default="scope">
-                    <el-avatar :src="getDefaultAvatar(scope.row.name)" :size="40" />
+                    <el-avatar :size="40">{{ scope.row.name?.slice(0, 1) }}</el-avatar>
                   </template>
                 </el-table-column>
                 <el-table-column prop="name" label="名称" width="180" />
@@ -272,8 +266,6 @@
                 <el-table-column label="操作">
                   <template #default="scope">
                     <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
-                    <el-button size="small" type="primary" :icon="Download" @click="handleDownloadCookie(scope.row)">下载Cookie</el-button>
-                    <el-button size="small" type="info" :icon="Upload" @click="handleUploadCookie(scope.row)">上传Cookie</el-button>
                     <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
                   </template>
                 </el-table-column>
@@ -310,7 +302,7 @@
               <el-table :data="filteredXiaohongshuAccounts" style="width: 100%">
                 <el-table-column label="头像" width="80">
                   <template #default="scope">
-                    <el-avatar :src="getDefaultAvatar(scope.row.name)" :size="40" />
+                    <el-avatar :size="40">{{ scope.row.name?.slice(0, 1) }}</el-avatar>
                   </template>
                 </el-table-column>
                 <el-table-column prop="name" label="名称" width="180" />
@@ -342,8 +334,6 @@
                 <el-table-column label="操作">
                   <template #default="scope">
                     <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
-                    <el-button size="small" type="primary" :icon="Download" @click="handleDownloadCookie(scope.row)">下载Cookie</el-button>
-                    <el-button size="small" type="info" :icon="Upload" @click="handleUploadCookie(scope.row)">上传Cookie</el-button>
                     <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
                   </template>
                 </el-table-column>
@@ -366,6 +356,7 @@
       :close-on-click-modal="false"
       :close-on-press-escape="!sseConnecting"
       :show-close="!sseConnecting"
+      @close="handleLoginDialogClose"
     >
       <el-form :model="accountForm" label-width="80px" :rules="rules" ref="accountFormRef">
         <el-form-item label="平台" prop="platform">
@@ -390,7 +381,7 @@
         </el-form-item>
         
         <!-- 二维码显示区域 -->
-        <div v-if="sseConnecting" class="qrcode-container">
+        <div v-if="sseConnecting || loginStatus" class="qrcode-container">
           <div v-if="qrCodeData && !loginStatus" class="qrcode-wrapper">
             <p class="qrcode-tip">请使用对应平台APP扫描二维码登录</p>
             <img :src="qrCodeData" alt="登录二维码" class="qrcode-image" />
@@ -407,6 +398,7 @@
             <el-icon><CircleCloseFilled /></el-icon>
             <span>{{ loginErrorMessage || '添加失败，请稍后再试' }}</span>
           </div>
+          <el-button v-if="loginStatus === '500'" @click="connectSSE(accountForm.platform, accountForm.name)">重新获取二维码</el-button>
         </div>
       </el-form>
       <template #footer>
@@ -428,12 +420,11 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
-import { Refresh, CircleCheckFilled, CircleCloseFilled, Download, Upload, Loading } from '@element-plus/icons-vue'
+import { Refresh, CircleCheckFilled, CircleCloseFilled, Loading } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { accountApi } from '@/api/account'
 import { useAccountStore } from '@/stores/account'
 import { useAppStore } from '@/stores/app'
-import { http } from '@/utils/request'
 
 // 获取账号状态管理
 const accountStore = useAccountStore()
@@ -671,66 +662,6 @@ const handleDelete = (row) => {
     })
 }
 
-// 下载Cookie文件
-const handleDownloadCookie = (row) => {
-  // 从后端获取Cookie文件
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5409'
-  const downloadUrl = `${baseUrl}/downloadCookie?filePath=${encodeURIComponent(row.filePath)}`
-
-  // 创建一个隐藏的链接来触发下载
-  const link = document.createElement('a')
-  link.href = downloadUrl
-  link.download = `${row.name}_cookie.json`
-  link.target = '_blank'
-  link.style.display = 'none'
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-}
-
-// 上传Cookie文件
-const handleUploadCookie = (row) => {
-  // 创建一个隐藏的文件输入框
-  const input = document.createElement('input')
-  input.type = 'file'
-  input.accept = '.json'
-  input.style.display = 'none'
-  document.body.appendChild(input)
-
-  input.onchange = async (event) => {
-    const file = event.target.files[0]
-    if (!file) return
-
-    // 检查文件类型
-    if (!file.name.endsWith('.json')) {
-      ElMessage.error('请选择JSON格式的Cookie文件')
-      document.body.removeChild(input)
-      return
-    }
-
-    try {
-      // 创建FormData对象
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('id', row.id)
-      formData.append('platform', row.platform)
-
-      // 使用统一的http封装发送上传请求
-      const result = await http.upload('/uploadCookie', formData)
-
-      ElMessage.success('Cookie文件上传成功')
-      // 刷新账号列表以显示更新
-      fetchAccounts()
-    } catch (error) {
-      ElMessage.error('Cookie文件上传失败')
-    } finally {
-      document.body.removeChild(input)
-    }
-  }
-
-  input.click()
-}
-
 // 重新登录账号
 const handleReLogin = (row) => {
   // 设置表单信息
@@ -757,12 +688,6 @@ const handleReLogin = (row) => {
   }, 300)
 }
 
-// 获取默认头像
-const getDefaultAvatar = (name) => {
-  // 使用简单的默认头像，可以基于用户名生成不同的颜色
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`
-}
-
 // SSE事件源对象
 let eventSource = null
 
@@ -772,6 +697,12 @@ const closeSSEConnection = () => {
     eventSource.close()
     eventSource = null
   }
+}
+
+const handleLoginDialogClose = () => {
+  closeSSEConnection()
+  sseConnecting.value = false
+  qrCodeData.value = ''
 }
 
 // 建立SSE连接
@@ -797,7 +728,7 @@ const connectSSE = (platform, name) => {
   const type = platformTypeMap[platform] || '1'
 
   // 创建SSE连接
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5409'
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || '/api'
   const url = `${baseUrl}/login?type=${type}&id=${encodeURIComponent(name)}`
 
   eventSource = new EventSource(url)

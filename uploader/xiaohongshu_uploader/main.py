@@ -143,14 +143,14 @@ async def _save_xhs_qrcode(
 
     if previous_qrcode_path and previous_qrcode_path != qrcode_path:
         if remove_qrcode_file(previous_qrcode_path):
-            xiaohongshu_logger.info(_msg("🧹", f"临时二维码文件已清理: {previous_qrcode_path}"))
+            xiaohongshu_logger.info(_msg("🧹", "旧临时二维码已清理"))
 
-    xiaohongshu_logger.info(_msg("🖼️", f"二维码已经准备好啦，已保存到: {qrcode_path}"))
-    qrcode_content = decode_qrcode_from_path(qrcode_path)
-    if qrcode_content:
-        print_terminal_qrcode(qrcode_content, qrcode_path, "小红书APP")
-    else:
-        xiaohongshu_logger.warning(_msg("😵", f"终端没法完整显示二维码，请打开 {qrcode_path} 扫码"))
+    if not qrcode_callback:
+        qrcode_content = decode_qrcode_from_path(qrcode_path)
+        if qrcode_content:
+            print_terminal_qrcode(qrcode_content, qrcode_path, "小红书APP")
+        else:
+            xiaohongshu_logger.warning(_msg("😵", "终端二维码无法显示，请检查本地临时文件"))
 
     qrcode_info = {
         "image_path": str(qrcode_path),
@@ -221,6 +221,7 @@ async def xiaohongshu_setup(
     handle=False,
     return_detail=False,
     qrcode_callback=None,
+    cancel_event=None,
     headless: bool = LOCAL_CHROME_HEADLESS,
 ):
     if not os.path.exists(account_file) or not await cookie_auth(account_file):
@@ -231,6 +232,7 @@ async def xiaohongshu_setup(
         result = await xiaohongshu_cookie_gen(
             account_file,
             qrcode_callback=qrcode_callback,
+            cancel_event=cancel_event,
             headless=headless,
         )
         return result if return_detail else result["success"]
@@ -242,6 +244,7 @@ async def xiaohongshu_setup(
 async def xiaohongshu_cookie_gen(
     account_file,
     qrcode_callback=None,
+    cancel_event=None,
     poll_interval: int = 3,
     max_checks: int = 100,
     headless: bool = LOCAL_CHROME_HEADLESS,
@@ -267,6 +270,9 @@ async def xiaohongshu_cookie_gen(
             xiaohongshu_logger.info(_msg("🧍", "请扫码，小人正在耐心等待登录完成"))
 
             for _ in range(max_checks):
+                if cancel_event and cancel_event.is_set():
+                    result = _build_login_result(False, 'cancelled', '登录会话已取消', account_file)
+                    return result
                 if await _is_xhs_login_completed(page):
                     await asyncio.sleep(2)
                     await context.storage_state(path=account_file)
@@ -298,7 +304,7 @@ async def xiaohongshu_cookie_gen(
             result = _build_login_result(False, "failed", str(exc), account_file, current_url=page.url if "page" in locals() else "")
         finally:
             if remove_qrcode_file(qrcode_path):
-                xiaohongshu_logger.info(_msg("🧹", f"临时二维码文件已清理: {qrcode_path}"))
+                xiaohongshu_logger.info(_msg("🧹", "临时二维码已清理"))
             if not result["success"]:
                 xiaohongshu_logger.error(_msg("😢", f"登录失败: {result['message']}"))
             await context.close()
