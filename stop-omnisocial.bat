@@ -1,6 +1,8 @@
 @echo off
 setlocal
-for /f "tokens=5" %%P in ('netstat -ano ^| findstr ":5409 .*LISTENING"') do taskkill /PID %%P /T /F >nul 2>&1
-for /f "tokens=5" %%P in ('netstat -ano ^| findstr ":5173 .*LISTENING"') do taskkill /PID %%P /T /F >nul 2>&1
-echo OmniSocial services stopped if they were running.
-endlocal
+if not exist "%~dp0.venv\Scripts\python.exe" (
+  echo OmniSocial virtual environment is missing.
+  exit /b 1
+)
+"%~dp0.venv\Scripts\python.exe" "%~dp0scripts\omnisocial_service.py" stop
+exit /b %ERRORLEVEL%

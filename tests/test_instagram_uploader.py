@@ -64,7 +64,7 @@ class InstagramContractTests(unittest.TestCase):
             args = sau_cli.build_parser().parse_args(['instagram', 'upload-video', '--account', 'creator',
                 '--file', str(video), '--thumbnail', str(cover), '--title', 'caption'])
             uploader = AsyncMock(return_value={'status': 'published'})
-            with patch.object(InstagramUploader, 'upload', uploader), contextlib.redirect_stdout(io.StringIO()):
+            with patch.object(InstagramUploader, 'upload', uploader), patch('sau_cli.require_real_publish_enabled'), contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(asyncio.run(sau_cli.dispatch(args)), 0)
             # 单独核对请求到构造函数的传递，避免只测 parser 丢失后续接线。
             request = sau_commands.instagram.InstagramUploadRequest('creator', 'caption', '', [], video_file=video, thumbnail=cover)

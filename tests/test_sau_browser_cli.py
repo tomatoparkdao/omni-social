@@ -244,7 +244,7 @@ class BrowserCliDispatchTests(unittest.TestCase):
             debug=False,
             headless=True,
         )
-        with patch("sau_commands.douyin.upload_note", new=AsyncMock()) as mock_upload:
+        with patch("sau_commands.douyin.upload_note", new=AsyncMock()) as mock_upload, patch("sau_cli.require_real_publish_enabled"):
             asyncio.run(sau_cli.dispatch(args))
 
         request = mock_upload.await_args.args[0]
@@ -271,7 +271,7 @@ class BrowserCliDispatchTests(unittest.TestCase):
             debug=False,
             headless=True,
         )
-        with patch("sau_commands.douyin.upload_video", new=AsyncMock()) as mock_upload:
+        with patch("sau_commands.douyin.upload_video", new=AsyncMock()) as mock_upload, patch("sau_cli.require_real_publish_enabled"):
             asyncio.run(sau_cli.dispatch(args))
 
         request = mock_upload.await_args.args[0]
@@ -299,7 +299,7 @@ class BrowserCliDispatchTests(unittest.TestCase):
             debug=False,
             headless=True,
         )
-        with patch("sau_commands.tencent.upload_tencent_video", new=AsyncMock()) as mock_upload:
+        with patch("sau_commands.tencent.upload_tencent_video", new=AsyncMock()) as mock_upload, patch("sau_cli.require_real_publish_enabled"):
             asyncio.run(sau_cli.dispatch(args))
 
         request = mock_upload.await_args.args[0]
@@ -320,7 +320,7 @@ class BrowserCliDispatchTests(unittest.TestCase):
             debug=False,
             headless=False,
         )
-        with patch("sau_commands.xiaohongshu.upload_xiaohongshu_video", new=AsyncMock()) as mock_upload:
+        with patch("sau_commands.xiaohongshu.upload_xiaohongshu_video", new=AsyncMock()) as mock_upload, patch("sau_cli.require_real_publish_enabled"):
             asyncio.run(sau_cli.dispatch(args))
 
         request = mock_upload.await_args.args[0]
@@ -341,7 +341,7 @@ class BrowserCliDispatchTests(unittest.TestCase):
             debug=False,
             headless=True,
         )
-        with patch("sau_commands.xiaohongshu.upload_xiaohongshu_note", new=AsyncMock()) as mock_upload:
+        with patch("sau_commands.xiaohongshu.upload_xiaohongshu_note", new=AsyncMock()) as mock_upload, patch("sau_cli.require_real_publish_enabled"):
             asyncio.run(sau_cli.dispatch(args))
 
         request = mock_upload.await_args.args[0]

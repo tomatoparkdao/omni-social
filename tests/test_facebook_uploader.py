@@ -111,7 +111,7 @@ class FacebookCliTests(unittest.TestCase):
                 "http://proxy.example:8080",
             ]
         )
-        with patch("sau_commands.facebook.upload_facebook_video", new=AsyncMock()) as mock_upload:
+        with patch("sau_commands.facebook.upload_facebook_video", new=AsyncMock()) as mock_upload, patch("sau_cli.require_real_publish_enabled"):
             result = asyncio.run(sau_cli.dispatch(args))
 
         self.assertEqual(result, 0)
