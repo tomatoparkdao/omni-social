@@ -27,6 +27,18 @@ class WebSecurityTests(unittest.TestCase):
             self.assertEqual(client.post('/uploadCookie').status_code, 403)
             self.assertEqual(client.get('/downloadCookie?filePath=x').status_code, 403)
 
+    def test_production_auth_attempts_are_rate_limited(self):
+        env = {
+            "OMNISOCIAL_ENV": "production",
+            "OMNISOCIAL_SESSION_SECRET": "test-only-secret-rate-limit",  # pragma: allowlist secret - test fixture only
+            "OMNISOCIAL_ADMIN_PASSWORD_HASH": generate_password_hash("test-password"),
+        }
+        with patch.dict(os.environ, env):
+            client = sau_backend.app.test_client()
+            for _ in range(5):
+                self.assertEqual(client.post('/auth/session', json={'password': 'wrong'}, environ_base={'REMOTE_ADDR': '192.0.2.77'}).status_code, 401)  # pragma: allowlist secret - invalid test input
+            self.assertEqual(client.post('/auth/session', json={'password': 'wrong'}, environ_base={'REMOTE_ADDR': '192.0.2.77'}).status_code, 429)  # pragma: allowlist secret - invalid test input
+
     def test_wrong_origin_and_remote_address_are_rejected(self):
         with patch.dict(os.environ, {"OMNISOCIAL_ENV": "local"}):
             client = sau_backend.app.test_client()

@@ -29,6 +29,8 @@ login_logger = logging.getLogger(__name__)
 
 active_queues = {}
 active_login_cancellations = {}
+auth_attempts = {}
+auth_attempts_lock = threading.Lock()
 app = Flask(__name__)
 ensure_schema(BASE_DIR)
 app.secret_key = os.environ.get('OMNISOCIAL_SESSION_SECRET') or secrets.token_bytes(32)
@@ -80,9 +82,20 @@ def auth_session():
     if request.method == 'DELETE':
         session.clear()
         return jsonify({'code': 200, 'authenticated': False}), 200
+    now = time.monotonic()
+    client_key = request.remote_addr or 'unknown'
+    with auth_attempts_lock:
+        recent = [attempt for attempt in auth_attempts.get(client_key, []) if now - attempt < 300]
+        if len(recent) >= 5:
+            auth_attempts[client_key] = recent
+            return jsonify({'code': 429, 'msg': '登录尝试过于频繁，请稍后重试'}), 429
     password = (request.get_json(silent=True) or {}).get('password', '')
     if not isinstance(password, str) or not check_password_hash(os.environ['OMNISOCIAL_ADMIN_PASSWORD_HASH'], password):
+        with auth_attempts_lock:
+            auth_attempts[client_key] = recent + [now]
         return jsonify({'code': 401, 'msg': '登录失败'}), 401
+    with auth_attempts_lock:
+        auth_attempts.pop(client_key, None)
     session.clear()
     session['authenticated'] = True
     return jsonify({'code': 200, 'authenticated': True}), 200
