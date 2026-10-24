@@ -81,6 +81,13 @@
         </el-col>
       </el-row>
 
+      <el-row :gutter="20">
+        <el-col :span="8"><el-card class="stat-card"><div class="stat-info"><div class="stat-value">{{ taskStats.total }}</div><div class="stat-label">任务总数</div></div></el-card></el-col>
+        <el-col :span="8"><el-card class="stat-card"><div class="stat-info"><div class="stat-value">{{ taskStats.draft }}</div><div class="stat-label">待确认草稿</div></div></el-card></el-col>
+        <el-col :span="8"><el-card class="stat-card"><div class="stat-info"><div class="stat-value">{{ systemHealthy ? '正常' : '待检查' }}</div><div class="stat-label">系统健康</div></div></el-card></el-col>
+      </el-row>
+      <el-alert title="真实发布已关闭；任务统计只来自本地数据库，不代表平台已发布。" type="info" :closable="false" />
+
       <!-- 快捷操作区域 -->
       <div class="quick-actions">
         <h2>快捷操作</h2>
@@ -109,7 +116,7 @@
                 <el-icon><Timer /></el-icon>
               </div>
               <div class="action-title">发布中心</div>
-              <div class="action-desc">发布内容到各平台</div>
+              <div class="action-desc">保存发布前任务草稿</div>
             </el-card>
           </el-col>
           <el-col :span="6">
@@ -170,6 +177,7 @@ import {
 } from '@element-plus/icons-vue'
 import { accountApi } from '@/api/account'
 import { materialApi } from '@/api/material'
+import { http } from '@/utils/request'
 import { useAccountStore } from '@/stores/account'
 import { useAppStore } from '@/stores/app'
 
@@ -177,6 +185,9 @@ const router = useRouter()
 const accountStore = useAccountStore()
 const appStore = useAppStore()
 const loading = ref(false)
+const taskRecords = ref([])
+const systemHealthy = ref(false)
+const taskStats = computed(() => ({ total: taskRecords.value.length, draft: taskRecords.value.filter(task => task.status === 'draft').length }))
 
 // 账号统计数据 - 从真实数据计算
 const accountStats = computed(() => {
@@ -248,9 +259,11 @@ const fetchDashboardData = async () => {
   loading.value = true
   try {
     // 并行获取账号和素材数据
-    const [accountRes, materialRes] = await Promise.allSettled([
+    const [accountRes, materialRes, taskRes, healthRes] = await Promise.allSettled([
       accountApi.getAccounts(),
-      materialApi.getAllMaterials()
+      materialApi.getAllMaterials(),
+      http.get('/tasks'),
+      http.get('/health')
     ])
 
     if (accountRes.status === 'fulfilled' && accountRes.value.code === 200) {
@@ -259,6 +272,8 @@ const fetchDashboardData = async () => {
     if (materialRes.status === 'fulfilled' && materialRes.value.code === 200) {
       appStore.setMaterials(materialRes.value.data)
     }
+    if (taskRes.status === 'fulfilled' && taskRes.value.code === 200) taskRecords.value = taskRes.value.data
+    systemHealthy.value = healthRes.status === 'fulfilled' && healthRes.value.status === 'ok'
   } catch (error) {
     console.error('获取仪表盘数据失败:', error)
   } finally {

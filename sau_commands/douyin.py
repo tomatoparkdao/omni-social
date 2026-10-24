@@ -84,6 +84,7 @@ class DouyinVideoUploadRequest:
     headless: bool = True
     declaration: str | None = None
     collection_name: str | None = None
+    account_file: Path | None = None
 
 
 @dataclass(slots=True)
@@ -98,6 +99,7 @@ class DouyinNoteUploadRequest:
     debug: bool = True
     headless: bool = True
     bgm: str = ""
+    account_file: Path | None = None
 
 
 async def login_douyin_account(account_name: str, headless: bool = True) -> dict:
@@ -113,7 +115,7 @@ async def check_douyin_account(account_name: str) -> bool:
 
 
 async def upload_video(request: DouyinVideoUploadRequest) -> Path:
-    account_file = resolve_account_file("douyin", request.account_name)
+    account_file = request.account_file or resolve_account_file("douyin", request.account_name)
     is_ready = await douyin_setup(str(account_file), handle=False)
     if not is_ready:
         raise RuntimeError(
@@ -146,7 +148,7 @@ async def upload_video(request: DouyinVideoUploadRequest) -> Path:
 
 
 async def upload_note(request: DouyinNoteUploadRequest) -> Path:
-    account_file = resolve_account_file("douyin", request.account_name)
+    account_file = request.account_file or resolve_account_file("douyin", request.account_name)
     is_ready = await douyin_setup(str(account_file), handle=False)
     if not is_ready:
         raise RuntimeError(

@@ -67,6 +67,7 @@ class TencentVideoUploadRequest:
     debug: bool = True
     headless: bool = True
     collection_name: str | None = None
+    account_file: Path | None = None
 
 
 async def login_tencent_account(account_name: str, headless: bool = True) -> dict:
@@ -82,7 +83,7 @@ async def check_tencent_account(account_name: str) -> bool:
 
 
 async def upload_tencent_video(request: TencentVideoUploadRequest) -> Path:
-    account_file = resolve_account_file("tencent", request.account_name)
+    account_file = request.account_file or resolve_account_file("tencent", request.account_name)
     is_ready = await tencent_setup(str(account_file), handle=False)
     if not is_ready:
         raise RuntimeError(

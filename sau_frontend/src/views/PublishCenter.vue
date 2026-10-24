@@ -37,7 +37,7 @@
             :loading="batchPublishing"
             class="batch-publish-btn"
           >
-            批量发布
+            批量保存任务
           </el-button>
         </div>
       </div>
@@ -115,7 +115,7 @@
               class="video-upload"
               drag
               :auto-upload="true"
-              :action="`${apiBaseUrl}/upload`"
+              :action="`${apiBaseUrl}/uploadSave`"
               :on-success="(response, file) => handleUploadSuccess(response, file, currentUploadTab)"
               :on-error="handleUploadError"
               multiple
@@ -137,7 +137,7 @@
           <!-- 批量发布进度对话框 -->
           <el-dialog
             v-model="batchPublishDialogVisible"
-            title="批量发布进度"
+            title="批量保存进度"
             width="500px"
             :close-on-click-modal="false"
             :close-on-press-escape="false"
@@ -149,7 +149,7 @@
                 :status="publishProgress === 100 ? 'success' : ''"
               />
               <div v-if="currentPublishingTab" class="current-publishing">
-                正在发布：{{ currentPublishingTab.label }}
+                正在保存：{{ currentPublishingTab.label }}
               </div>
               
               <!-- 发布结果列表 -->
@@ -174,7 +174,7 @@
                   @click="cancelBatchPublish" 
                   :disabled="publishProgress === 100"
                 >
-                  取消发布
+                  取消后续保存
                 </el-button>
                 <el-button 
                   type="primary" 
@@ -478,11 +478,11 @@
             <el-button
               size="small"
               type="primary"
-              @click="confirmPublish(tab)"
+              @click="handleSaveClick(tab)"
               :loading="tab.publishing || false"
               class="publish-btn"
             >
-              {{ tab.publishing ? '发布中...' : '发布' }}
+              {{ tab.publishing ? '保存中...' : '保存任务' }}
             </el-button>
           </div>
         </div>
@@ -501,7 +501,7 @@ import { materialApi } from '@/api/material'
 import { http } from '@/utils/request'
 
 // API base URL
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5409'
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api'
 
 // Authorization headers
 const authHeaders = computed(() => ({
@@ -554,7 +554,8 @@ const defaultTabInit = {
   dailyTimes: ['10:00'], // 每天发布时间点列表
   startDays: 0, // 从今天开始计算的发布天数，0表示明天，1表示后天
   publishStatus: null, // 发布状态，包含message和type
-  publishing: false, // 发布状态，用于控制按钮loading效果
+  publishing: false, // 保存状态，用于控制按钮loading效果
+  idempotencyKey: null,
   isDraft: false, // 是否保存为草稿，仅视频号平台可见
   isOriginal: false // 是否标记为原创
 }
@@ -631,7 +632,7 @@ const removeTab = (tabName) => {
 const handleUploadSuccess = (response, file, tab) => {
   if (response.code === 200) {
     // 获取文件路径
-    const filePath = response.data.path || response.data
+    const filePath = response.data.filepath
     // 从路径中提取文件名
     const filename = filePath.split('/').pop()
     
@@ -640,6 +641,7 @@ const handleUploadSuccess = (response, file, tab) => {
       name: file.name,
       url: materialApi.getMaterialPreviewUrl(filename), // 使用getMaterialPreviewUrl生成预览URL
       path: filePath,
+      id: response.data.id,
       size: file.size,
       type: file.type
     }
@@ -754,70 +756,67 @@ const getAccountDisplayName = (accountId) => {
   return account ? account.name : accountId
 }
 
-// 取消发布
+// 取消未保存的编辑
 const cancelPublish = (tab) => {
-  ElMessage.info('已取消发布')
+  tab.fileList = []
+  tab.displayFileList = []
+  tab.title = ''
+  tab.selectedTopics = []
+  tab.selectedAccounts = []
+  tab.scheduleEnabled = false
+  tab.idempotencyKey = null
+  ElMessage.info('已清空当前编辑内容')
 }
 
-// 确认发布
+const handleSaveClick = (tab) => confirmPublish(tab).catch(() => {})
+
+const scheduleFor = (tab, fileIndex) => {
+  if (!tab.scheduleEnabled) return null
+  const slots = tab.dailyTimes.filter(Boolean)
+  if (slots.length < tab.videosPerDay) throw new Error('请填写每天每个发布时间')
+  const [hour, minute] = slots[fileIndex % tab.videosPerDay].split(':').map(Number)
+  const date = new Date()
+  date.setHours(0, 0, 0, 0)
+  date.setDate(date.getDate() + 1 + tab.startDays + Math.floor(fileIndex / tab.videosPerDay))
+  date.setHours(hour, minute)
+  return date.toISOString()
+}
+
+// 保存发布前草稿；不会触发真实平台提交
 const confirmPublish = async (tab) => {
-  // 防止重复点击
-  if (tab.publishing) {
-    throw new Error('正在发布中，请稍候...')
-  }
-
-  tab.publishing = true // 设置发布状态为进行中
-
-  // 数据验证
-  if (tab.fileList.length === 0) {
-    ElMessage.error('请先上传视频文件')
-    tab.publishing = false
-    throw new Error('请先上传视频文件')
-  }
-  if (!tab.title.trim()) {
-    ElMessage.error('请输入标题')
-    tab.publishing = false
-    throw new Error('请输入标题')
-  }
-  if (!tab.selectedPlatform) {
-    ElMessage.error('请选择发布平台')
-    tab.publishing = false
-    throw new Error('请选择发布平台')
-  }
-  if (tab.selectedAccounts.length === 0) {
-    ElMessage.error('请选择发布账号')
-    tab.publishing = false
-    throw new Error('请选择发布账号')
-  }
-
-  // 构造发布数据，符合后端API格式
-  const publishData = {
-    type: tab.selectedPlatform,
-    title: tab.title,
-    tags: tab.selectedTopics, // 不带#号的话题列表
-    fileList: tab.fileList.map(file => file.path), // 只发送文件路径
-    accountList: tab.selectedAccounts.map(accountId => {
-      const account = accountStore.accounts.find(acc => acc.id === accountId)
-      return account ? account.filePath : accountId
-    }), // 发送账号的文件路径
-    enableTimer: tab.scheduleEnabled ? 1 : 0,
-    videosPerDay: tab.scheduleEnabled ? tab.videosPerDay || 1 : 1,
-    dailyTimes: tab.scheduleEnabled ? tab.dailyTimes || ['10:00'] : ['10:00'],
-    startDays: tab.scheduleEnabled ? tab.startDays || 0 : 0,
-    category: tab.isOriginal ? 1 : 0, // 1表示原创，0表示非原创
-    productLink: tab.productLink.trim() || '',
-    productTitle: tab.productTitle.trim() || '',
-    isDraft: tab.isDraft
-  }
-
-  // 调用后端发布API（使用统一的http封装）
+  if (tab.publishing) throw new Error('正在保存，请稍候')
+  tab.publishing = true
   try {
-    const data = await http.post('/postVideo', publishData)
-    tab.publishStatus = {
-      message: '发布成功',
-      type: 'success'
+    if (!tab.fileList.length || tab.fileList.some(file => !Number.isInteger(file.id))) throw new Error('请先上传或选择已入库的视频素材')
+    if (!tab.title.trim()) throw new Error('请输入标题')
+    if (!tab.selectedPlatform || !tab.selectedAccounts.length) throw new Error('请选择平台和账号')
+    tab.idempotencyKey ||= crypto.randomUUID()
+    let saved = 0
+    for (const [fileIndex, file] of tab.fileList.entries()) {
+      for (const accountId of tab.selectedAccounts) {
+        await http.post('/tasks', {
+          platform: tab.selectedPlatform,
+          account_id: accountId,
+          content_type: 'video',
+          title: tab.title.trim(),
+          body: '',
+          tags: tab.selectedTopics,
+          material_ids: [file.id],
+          schedule_at: scheduleFor(tab, fileIndex),
+          idempotency_key: `${tab.idempotencyKey}:${file.id}:${accountId}`,
+          options: {
+            category: tab.isOriginal ? 1 : 0,
+            product_link: tab.productLink.trim(),
+            product_title: tab.productTitle.trim(),
+            is_draft: tab.isDraft,
+            is_original: tab.isOriginal
+          }
+        })
+        saved++
+      }
     }
-    // 清空当前tab的数据
+    tab.publishStatus = { message: `已保存 ${saved} 个任务草稿；真实发布仍关闭`, type: 'success' }
+    tab.idempotencyKey = null
     tab.fileList = []
     tab.displayFileList = []
     tab.title = ''
@@ -825,9 +824,8 @@ const confirmPublish = async (tab) => {
     tab.selectedAccounts = []
     tab.scheduleEnabled = false
   } catch (error) {
-    console.error('发布错误:', error)
     tab.publishStatus = {
-      message: `发布失败：${error.message || '请检查网络连接'}`,
+      message: `保存失败：${error.message || '请检查网络连接'}；重试不会重复创建已保存的任务`,
       type: 'error'
     }
     throw error
@@ -889,6 +887,7 @@ const confirmMaterialSelection = () => {
           name: material.filename,
           url: materialApi.getMaterialPreviewUrl(material.file_path.split('/').pop()),
           path: material.file_path,
+          id: material.id,
           size: material.filesize * 1024 * 1024, // 转换为字节
           type: 'video/mp4'
         }
@@ -959,7 +958,7 @@ const batchPublish = async () => {
         publishResults.value.push({
           label: tab.label,
           status: 'success',
-          message: '发布成功'
+          message: '任务草稿已保存'
         })
       } catch (error) {
         publishResults.value.push({
@@ -979,19 +978,19 @@ const batchPublish = async () => {
     const cancelCount = publishResults.value.filter(r => r.status === 'cancelled').length
     
     if (isCancelled.value) {
-      ElMessage.warning(`发布已取消：${successCount}个成功，${failCount}个失败，${cancelCount}个未执行`)
+      ElMessage.warning(`保存已取消：${successCount}个成功，${failCount}个失败，${cancelCount}个未执行`)
     } else if (failCount > 0) {
-      ElMessage.error(`发布完成：${successCount}个成功，${failCount}个失败`)
+      ElMessage.error(`保存完成：${successCount}个成功，${failCount}个失败`)
     } else {
-      ElMessage.success('所有Tab发布成功')
+      ElMessage.success('所有任务草稿已保存，未执行真实发布')
       setTimeout(() => {
         batchPublishDialogVisible.value = false
       }, 1000)
     }
     
   } catch (error) {
-    console.error('批量发布出错:', error)
-    ElMessage.error('批量发布出错，请重试')
+    console.error('批量保存出错:', error)
+    ElMessage.error('批量保存出错，请重试')
   } finally {
     batchPublishing.value = false
     isCancelled.value = false

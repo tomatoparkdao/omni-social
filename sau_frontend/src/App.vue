@@ -1,6 +1,16 @@
 <template>
   <div id="app">
-    <el-container>
+    <div v-if="!authenticated" class="auth-shell">
+      <el-card class="auth-card">
+        <h2>OmniSocial</h2>
+        <p>请输入管理员密码以访问运营工作台</p>
+        <el-form @submit.prevent="signIn">
+          <el-input v-model="password" type="password" show-password autocomplete="current-password" placeholder="管理员密码" />
+          <el-button type="primary" native-type="submit" :loading="authLoading">登录</el-button>
+        </el-form>
+      </el-card>
+    </div>
+    <el-container v-else>
       <el-aside :class="{ 'is-collapsed': isCollapse }" :width="isCollapse ? '64px' : '232px'">
         <div class="sidebar">
           <div class="logo">
@@ -35,6 +45,11 @@
               <el-icon><Upload /></el-icon>
               <span>发布中心</span>
             </el-menu-item>
+            <el-menu-item index="/new-task"><el-icon><EditPen /></el-icon><span>新建任务</span></el-menu-item>
+            <el-menu-item index="/queue"><el-icon><List /></el-icon><span>发布队列</span></el-menu-item>
+            <el-menu-item index="/calendar"><el-icon><Calendar /></el-icon><span>发布日历</span></el-menu-item>
+            <el-menu-item index="/history"><el-icon><Clock /></el-icon><span>历史记录</span></el-menu-item>
+            <el-menu-item index="/settings"><el-icon><Setting /></el-icon><span>系统设置</span></el-menu-item>
             <el-menu-item index="/about">
               <el-icon><DataAnalysis /></el-icon>
               <span>关于</span>
@@ -63,14 +78,41 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { http } from '@/utils/request'
+import { ElMessage } from 'element-plus'
 import {
   HomeFilled, User, DataAnalysis,
-  Fold, Picture, Upload
+  Fold, Picture, Upload, List, Calendar, Clock, EditPen, Setting
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
+const authenticated = ref(false)
+const authLoading = ref(false)
+const password = ref('')
+
+onMounted(async () => {
+  try {
+    const state = await http.get('/auth/session')
+    authenticated.value = state.authenticated === true
+  } catch {
+    ElMessage.error('无法检查服务端登录状态')
+  }
+})
+
+const signIn = async () => {
+  authLoading.value = true
+  try {
+    const result = await http.post('/auth/session', { password: password.value })
+    authenticated.value = result.authenticated === true
+    password.value = ''
+  } catch {
+    password.value = ''
+  } finally {
+    authLoading.value = false
+  }
+}
 
 // 当前激活的菜单项
 const activeMenu = computed(() => {
@@ -81,6 +123,11 @@ const pageTitle = computed(() => ({
   '/account-management': '账号管理',
   '/material-management': '素材管理',
   '/publish-center': '发布中心',
+  '/queue': '发布队列',
+  '/calendar': '发布日历',
+  '/history': '历史记录',
+  '/new-task': '新建任务',
+  '/settings': '系统设置',
   '/about': '系统信息'
 }[route.path] || '运营工作台'))
 
@@ -99,6 +146,12 @@ const toggleSidebar = () => {
 #app {
   min-height: 100vh;
 }
+
+.auth-shell { min-height: 100vh; display: grid; place-items: center; background: #0f1113; }
+.auth-card { width: min(380px, calc(100vw - 32px)); }
+.auth-card h2 { margin: 0 0 12px; }
+.auth-card p { margin-bottom: 24px; }
+.auth-card .el-button { width: 100%; margin-top: 16px; }
 
 .el-container {
   height: 100vh;

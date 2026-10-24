@@ -68,6 +68,7 @@ class KuaishouVideoUploadRequest:
     debug: bool = True
     headless: bool = True
     collection_name: str | None = None
+    account_file: Path | None = None
 
 
 @dataclass(slots=True)
@@ -81,6 +82,7 @@ class KuaishouNoteUploadRequest:
     publish_strategy: str = KUAISHOU_PUBLISH_STRATEGY_IMMEDIATE
     debug: bool = True
     headless: bool = True
+    account_file: Path | None = None
 
 
 async def login_kuaishou_account(account_name: str, headless: bool = True) -> dict:
@@ -96,7 +98,7 @@ async def check_kuaishou_account(account_name: str) -> bool:
 
 
 async def upload_kuaishou_video(request: KuaishouVideoUploadRequest) -> Path:
-    account_file = resolve_account_file("kuaishou", request.account_name)
+    account_file = request.account_file or resolve_account_file("kuaishou", request.account_name)
     is_ready = await ks_setup(str(account_file), handle=False)
     if not is_ready:
         raise RuntimeError(
@@ -121,7 +123,7 @@ async def upload_kuaishou_video(request: KuaishouVideoUploadRequest) -> Path:
 
 
 async def upload_kuaishou_note(request: KuaishouNoteUploadRequest) -> Path:
-    account_file = resolve_account_file("kuaishou", request.account_name)
+    account_file = request.account_file or resolve_account_file("kuaishou", request.account_name)
     is_ready = await ks_setup(str(account_file), handle=False)
     if not is_ready:
         raise RuntimeError(

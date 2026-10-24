@@ -4,6 +4,9 @@ import AccountManagement from '../views/AccountManagement.vue'
 import MaterialManagement from '../views/MaterialManagement.vue'
 import PublishCenter from '../views/PublishCenter.vue'
 import About from '../views/About.vue'
+import TaskBoard from '../views/TaskBoard.vue'
+import TaskComposer from '../views/TaskComposer.vue'
+import SystemSettings from '../views/SystemSettings.vue'
 
 const routes = [
   {
@@ -30,6 +33,34 @@ const routes = [
     path: '/about',
     name: 'About',
     component: About
+  },
+  {
+    path: '/queue',
+    name: 'Queue',
+    component: TaskBoard,
+    props: { mode: 'queue' }
+  },
+  {
+    path: '/calendar',
+    name: 'Calendar',
+    component: TaskBoard,
+    props: { mode: 'calendar' }
+  },
+  {
+    path: '/history',
+    name: 'History',
+    component: TaskBoard,
+    props: { mode: 'history' }
+  },
+  {
+    path: '/new-task',
+    name: 'NewTask',
+    component: TaskComposer
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: SystemSettings
   }
 ]
 

@@ -67,6 +67,7 @@ class XiaohongshuVideoUploadRequest:
     publish_strategy: str = XIAOHONGSHU_PUBLISH_STRATEGY_IMMEDIATE
     debug: bool = True
     headless: bool = True
+    account_file: Path | None = None
 
 
 @dataclass(slots=True)
@@ -80,6 +81,7 @@ class XiaohongshuNoteUploadRequest:
     publish_strategy: str = XIAOHONGSHU_PUBLISH_STRATEGY_IMMEDIATE
     debug: bool = True
     headless: bool = True
+    account_file: Path | None = None
 
 
 async def login_xiaohongshu_account(account_name: str, headless: bool = True) -> dict:
@@ -95,7 +97,7 @@ async def check_xiaohongshu_account(account_name: str) -> bool:
 
 
 async def upload_xiaohongshu_video(request: XiaohongshuVideoUploadRequest) -> Path:
-    account_file = resolve_account_file("xiaohongshu", request.account_name)
+    account_file = request.account_file or resolve_account_file("xiaohongshu", request.account_name)
     is_ready = await xiaohongshu_setup(str(account_file), handle=False)
     if not is_ready:
         raise RuntimeError(
@@ -119,7 +121,7 @@ async def upload_xiaohongshu_video(request: XiaohongshuVideoUploadRequest) -> Pa
 
 
 async def upload_xiaohongshu_note(request: XiaohongshuNoteUploadRequest) -> Path:
-    account_file = resolve_account_file("xiaohongshu", request.account_name)
+    account_file = request.account_file or resolve_account_file("xiaohongshu", request.account_name)
     is_ready = await xiaohongshu_setup(str(account_file), handle=False)
     if not is_ready:
         raise RuntimeError(
