@@ -2,7 +2,7 @@
 
 | 验证 | 结果 | 范围/限制 |
 |:---|:---|:---|
-| Python `unittest discover -s tests -q` | 158/158 通过 | 默认真实发布关闭；新增 Web/CLI 会话适配、队列幂等、未知结果不重试测试；旧 CLI 参数测试只用 Mock 上传器 |
+| Python `unittest discover -s tests -q` | 159/159 通过 | 默认真实发布关闭；覆盖生产登录限速、Web/CLI 会话适配、队列幂等、未知结果不重试；旧 CLI 参数测试只用 Mock 上传器 |
 | 浏览器 `tests.test_web_e2e` | 1/1 通过 | 本地真实 Chromium 操作网页；扫码、账号写入和任务提交均使用 Mock，不访问真实发布端点 |
 | 前端 `npm run build` | 通过 | Vite 生产静态构建，不等于容器或公网部署 |
 | API 直连与 Vite `/api` 代理 | 通过 | 两侧健康检查 200；`getAccounts` 返回 1 条真实小红书元数据且 Cookie 路径隐藏；系统状态显示数据库、素材存储、浏览器库均就绪，真实发布关闭 |
