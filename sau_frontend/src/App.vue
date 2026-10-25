@@ -1,10 +1,13 @@
 <template>
   <div id="app">
-    <div v-if="!authenticated" class="auth-shell">
+    <div v-if="!auth.ready" class="auth-shell">
+      <div class="auth-boot">正在连接 OmniSocial…</div>
+    </div>
+    <div v-else-if="!auth.authenticated" class="auth-shell">
       <el-card class="auth-card">
         <h2>OmniSocial</h2>
         <p>请输入管理员密码以访问运营工作台</p>
-        <el-form @submit.prevent="signIn">
+        <el-form @submit.prevent="submitPassword">
           <el-input v-model="password" type="password" show-password autocomplete="current-password" placeholder="管理员密码" />
           <el-button type="primary" native-type="submit" :loading="authLoading">登录</el-button>
         </el-form>
@@ -80,7 +83,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { http } from '@/utils/request'
+import { authState as auth, loadSession, signIn } from '@/utils/auth'
 import { ElMessage } from 'element-plus'
 import {
   HomeFilled, User, DataAnalysis,
@@ -88,24 +91,18 @@ import {
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
-const authenticated = ref(false)
 const authLoading = ref(false)
 const password = ref('')
 
 onMounted(async () => {
-  try {
-    const state = await http.get('/auth/session')
-    authenticated.value = state.authenticated === true
-  } catch {
-    ElMessage.error('无法检查服务端登录状态')
-  }
+  await loadSession()
+  if (auth.error) ElMessage.error(auth.error)
 })
 
-const signIn = async () => {
+const submitPassword = async () => {
   authLoading.value = true
   try {
-    const result = await http.post('/auth/session', { password: password.value })
-    authenticated.value = result.authenticated === true
+    await signIn(password.value)
     password.value = ''
   } catch {
     password.value = ''
@@ -148,6 +145,7 @@ const toggleSidebar = () => {
 }
 
 .auth-shell { min-height: 100vh; display: grid; place-items: center; background: #0f1113; }
+.auth-boot { color: #91959d; font-size: 13px; letter-spacing: 0.04em; }
 .auth-card { width: min(380px, calc(100vw - 32px)); }
 .auth-card h2 { margin: 0 0 12px; }
 .auth-card p { margin-bottom: 24px; }

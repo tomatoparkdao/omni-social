@@ -3,6 +3,7 @@
 已处理：
 
 - Flask 本地默认只绑定 `127.0.0.1`；移除通配 CORS。生产模式要求管理员密码哈希、服务端校验密钥，采用 Flask 签名会话 Cookie（HttpOnly/SameSite=Strict/Secure，非服务端持久 Session 存储）；跨站写请求被拒绝。
+- 认证模式由 `OMNISOCIAL_AUTH_MODE` 显式决定：`production`（默认，未配置即按此处理）强制管理员密码登录；`local_dev` 仅用于本机单机开发。`local_dev` 生效需同时满足：显式设置、`OMNISOCIAL_ENV` 非 `production`、声明并实际只监听回环地址、未启用 `OMNISOCIAL_TRUST_PROXY` 等反代/隧道开关；同时每个请求仍要求回环来源地址、回环 Host 头且不带任何代理头。任一不满足即拒绝（启动期报错退出 / 请求期 403 / 配置错误时 503）。Docker 镜像与 `compose.yaml` 固定 `OMNISOCIAL_AUTH_MODE=production`，前端生产构建在 `local_dev` 下直接失败。
 - Web、CLI、旧发布函数的真实发布闸门默认关闭，模拟 Worker 在独立测试环境运行。
 - 网页 Cookie 上传/下载固定拒绝，账号 API 不返回 Cookie 文件名；删除账号改为 DELETE，素材与会话删除前验证路径位于受控目录。
 - 第三方头像接口已移除，账号名称不再发送给该接口；Web 小红书二维码不打印终端，临时会话关闭后清理。

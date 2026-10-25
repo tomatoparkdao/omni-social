@@ -4,7 +4,7 @@
 
 Windows：安装 Python 3.10–3.12、Node.js；在仓库根目录执行 `python -m venv .venv`、`.venv\Scripts\python.exe -m pip install -r requirements.txt`、`.venv\Scripts\python.exe -m patchright install chromium`；在 `sau_frontend` 执行 `npm install`。双击根目录的 `start-omnisocial.bat`，打开 `http://127.0.0.1:5173`。停止用 `stop-omnisocial.bat`。脚本只停止自身记录且核对身份的进程。首次运行已有真实账号时，不要重建 `db/database.db` 或清理 `cookiesFile/`、`cookies/`。
 
-单独运行时：后端 `.venv\Scripts\python.exe sau_backend.py`（127.0.0.1:5409）；前端在 `sau_frontend` 运行 `npm run dev`（127.0.0.1:5173，`/api` 代理至后端）。本地开发模式不提供远程访问控制，只能在可信本机使用。`OMNISOCIAL_ENV=test` 仅供隔离测试库与 Mock Worker，不得指向真实账号数据。
+单独运行时：后端 `.venv\Scripts\python.exe sau_backend.py`（须同时设置 `OMNISOCIAL_AUTH_MODE=local_dev`，否则按生产模式要求登录），前端在 `sau_frontend` 运行 `npm run dev`（127.0.0.1:5173，`/api` 代理至 127.0.0.1:5409）。`start-omnisocial.bat` 已显式写入 `OMNISOCIAL_AUTH_MODE=local_dev`、`OMNISOCIAL_ENV=local`、`OMNISOCIAL_BIND_HOST=127.0.0.1`，启动后直接进入工作台。本地免登录只在单机回环地址成立，不提供远程访问控制，只能在可信本机使用。`OMNISOCIAL_ENV=test` 仅供隔离测试库与 Mock Worker，不得指向真实账号数据。
 
 ## 容器草案与生产前提
 

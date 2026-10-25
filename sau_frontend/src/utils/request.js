@@ -47,7 +47,7 @@ request.interceptors.response.use(
       switch (status) {
         case 401:
           ElMessage.error('未授权，请重新登录')
-          // 可以在这里处理登录跳转
+          window.dispatchEvent(new CustomEvent('omnisocial:unauthorized'))
           break
         case 403:
           ElMessage.error('拒绝访问')

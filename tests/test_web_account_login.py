@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import sqlite3
 import tempfile
 import threading
@@ -10,6 +11,22 @@ from queue import Queue
 from unittest.mock import AsyncMock, patch
 
 import sau_backend
+from myUtils import auth_mode
+
+_ENV_PATCH = None
+
+
+def setUpModule():
+    """这些用例直接调用 Web 接口，按本机开发模式（local_dev）运行。"""
+    global _ENV_PATCH
+    _ENV_PATCH = patch.dict(os.environ, {'OMNISOCIAL_AUTH_MODE': 'local_dev', 'OMNISOCIAL_BIND_HOST': '127.0.0.1'})
+    _ENV_PATCH.start()
+    auth_mode.clear_cache()
+
+
+def tearDownModule():
+    _ENV_PATCH.stop()
+    auth_mode.clear_cache()
 
 
 class WebAccountLoginTests(unittest.TestCase):

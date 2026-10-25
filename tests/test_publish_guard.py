@@ -6,7 +6,22 @@ from unittest.mock import patch
 
 import sau_backend
 import sau_cli
-from myUtils import postVideo
+from myUtils import auth_mode, postVideo
+
+_ENV_PATCH = None
+
+
+def setUpModule():
+    """Web 发布闸门用例直接调用接口，按本机开发模式（local_dev）运行。"""
+    global _ENV_PATCH
+    _ENV_PATCH = patch.dict(os.environ, {'OMNISOCIAL_AUTH_MODE': 'local_dev', 'OMNISOCIAL_BIND_HOST': '127.0.0.1'})
+    _ENV_PATCH.start()
+    auth_mode.clear_cache()
+
+
+def tearDownModule():
+    _ENV_PATCH.stop()
+    auth_mode.clear_cache()
 
 
 class PublishGuardTests(unittest.TestCase):

@@ -10,7 +10,22 @@ from unittest.mock import AsyncMock, patch
 import sau_backend
 import sau_worker
 import sau_publish_worker
-from myUtils import task_store
+from myUtils import auth_mode, task_store
+
+_ENV_PATCH = None
+
+
+def setUpModule():
+    """任务接口用例直接调用 Web API，按本机开发模式（local_dev）运行。"""
+    global _ENV_PATCH
+    _ENV_PATCH = patch.dict(os.environ, {'OMNISOCIAL_AUTH_MODE': 'local_dev', 'OMNISOCIAL_BIND_HOST': '127.0.0.1'})
+    _ENV_PATCH.start()
+    auth_mode.clear_cache()
+
+
+def tearDownModule():
+    _ENV_PATCH.stop()
+    auth_mode.clear_cache()
 
 
 class TaskStoreTests(unittest.TestCase):

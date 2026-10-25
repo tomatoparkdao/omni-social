@@ -18,6 +18,15 @@ from werkzeug.security import check_password_hash
 from urllib.parse import urlparse
 from werkzeug.utils import secure_filename
 from conf import BASE_DIR
+from myUtils.auth_mode import (
+    LOCAL_DEV,
+    PRODUCTION,
+    PROXY_HEADERS,
+    AuthModeError,
+    is_loopback,
+    is_loopback_host_header,
+    resolve_auth_mode,
+)
 from myUtils.login import get_tencent_cookie, douyin_cookie_gen, get_ks_cookie
 from myUtils.postVideo import post_video_tencent, post_video_DouYin, post_video_ks, post_video_xhs
 from myUtils.publish_guard import require_real_publish_enabled
@@ -37,51 +46,86 @@ app.secret_key = os.environ.get('OMNISOCIAL_SESSION_SECRET') or secrets.token_by
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Strict',
-    SESSION_COOKIE_SECURE=os.environ.get('OMNISOCIAL_ENV') == 'production',
+    SESSION_COOKIE_SECURE=False,
 )
 
 # 开发和生产前端均使用同源代理访问 API。
 
+# 启动时解析一次认证模式：配置不安全时不用 local_dev 放行，而是记录错误并在请求层拒绝。
+try:
+    STARTUP_AUTH_MODE = resolve_auth_mode()
+    STARTUP_AUTH_ERROR = None
+except AuthModeError as exc:
+    STARTUP_AUTH_MODE = PRODUCTION
+    STARTUP_AUTH_ERROR = str(exc)
+
+
+def auth_mode():
+    """返回当前请求应使用的认证模式；解析失败时按最严格的生产模式处理。"""
+    try:
+        return resolve_auth_mode()
+    except AuthModeError:
+        return PRODUCTION
+
 
 def production_mode():
-    return os.environ.get('OMNISOCIAL_ENV') == 'production'
+    return auth_mode() == PRODUCTION
+
+
+def local_dev_mode():
+    return auth_mode() == LOCAL_DEV
+
+
+def _proxy_headers_present():
+    return [header for header in PROXY_HEADERS if request.headers.get(header)]
 
 
 @app.before_request
 def protect_web_api():
-    app.config['SESSION_COOKIE_SECURE'] = production_mode()
-    if production_mode():
+    mode = auth_mode()
+    app.config['SESSION_COOKIE_SECURE'] = mode == PRODUCTION
+    if STARTUP_AUTH_ERROR:
+        return jsonify({'code': 503, 'msg': f'认证模式配置不安全，已拒绝启用免登录：{STARTUP_AUTH_ERROR}'}), 503
+
+    if mode == PRODUCTION:
         if not os.environ.get('OMNISOCIAL_SESSION_SECRET') or not os.environ.get('OMNISOCIAL_ADMIN_PASSWORD_HASH'):
             return jsonify({'code': 503, 'msg': '生产环境身份认证未配置'}), 503
-    elif request.remote_addr not in {'127.0.0.1', '::1'}:
-        return jsonify({'code': 403, 'msg': '开发模式只允许本机访问'}), 403
+    else:
+        # 本地免登录只信任真正的本机直连：来源必须是回环，且不得经过任何代理 / 隧道。
+        if not is_loopback(request.remote_addr):
+            return jsonify({'code': 403, 'msg': '开发模式只允许本机访问'}), 403
+        if _proxy_headers_present():
+            return jsonify({'code': 403, 'msg': '本地免登录模式不接受代理请求'}), 403
+        if not is_loopback_host_header(request.host):
+            return jsonify({'code': 403, 'msg': '本地免登录模式只接受回环 Host'}), 403
 
     if request.method not in {'GET', 'HEAD', 'OPTIONS'}:
         origin = request.headers.get('Origin')
         if origin:
             parsed = urlparse(origin)
             allowed = {request.host}
-            if not production_mode():
+            if mode != PRODUCTION:
                 allowed.update({'127.0.0.1:5173', 'localhost:5173'})
             if parsed.scheme not in {'http', 'https'} or parsed.netloc not in allowed:
                 return jsonify({'code': 403, 'msg': '请求来源不被允许'}), 403
-        elif production_mode() and request.path != '/auth/session':
+        elif mode == PRODUCTION and request.path != '/auth/session':
             return jsonify({'code': 403, 'msg': '缺少请求来源'}), 403
 
-    if production_mode() and request.path not in {'/auth/session', '/health', '/favicon.ico', '/vite.svg'}:
+    if mode == PRODUCTION and request.path not in {'/auth/session', '/health', '/favicon.ico', '/vite.svg'}:
         if request.path != '/' and not request.path.startswith('/assets/') and not session.get('authenticated'):
             return jsonify({'code': 401, 'msg': '请先登录 OmniSocial'}), 401
 
 
 @app.route('/auth/session', methods=['GET', 'POST', 'DELETE'])
 def auth_session():
-    if not production_mode():
-        return jsonify({'code': 200, 'authenticated': True, 'mode': 'local'}), 200
+    if local_dev_mode():
+        # 本地开发免登录：服务端直接返回已认证状态，前端据此跳过密码页。
+        return jsonify({'code': 200, 'authenticated': True, 'mode': LOCAL_DEV}), 200
     if request.method == 'GET':
-        return jsonify({'code': 200, 'authenticated': bool(session.get('authenticated')), 'mode': 'production'}), 200
+        return jsonify({'code': 200, 'authenticated': bool(session.get('authenticated')), 'mode': PRODUCTION}), 200
     if request.method == 'DELETE':
         session.clear()
-        return jsonify({'code': 200, 'authenticated': False}), 200
+        return jsonify({'code': 200, 'authenticated': False, 'mode': PRODUCTION}), 200
     now = time.monotonic()
     client_key = request.remote_addr or 'unknown'
     with auth_attempts_lock:
@@ -98,7 +142,7 @@ def auth_session():
         auth_attempts.pop(client_key, None)
     session.clear()
     session['authenticated'] = True
-    return jsonify({'code': 200, 'authenticated': True}), 200
+    return jsonify({'code': 200, 'authenticated': True, 'mode': PRODUCTION}), 200
 
 @app.route('/agent/plan', methods=['POST'])
 def agent_plan():
@@ -128,6 +172,7 @@ def health():
 def system_status():
     return jsonify({'code': 200, 'data': {
         'mode': os.environ.get('OMNISOCIAL_ENV', 'local'),
+        'auth_mode': auth_mode(),
         'database_ready': (Path(BASE_DIR) / 'db' / 'database.db').is_file(),
         'material_storage_ready': (Path(BASE_DIR) / 'videoFile').is_dir(),
         'browser_library_ready': importlib.util.find_spec('patchright') is not None,
@@ -830,4 +875,6 @@ def sse_stream(status_queue):
             return
 
 if __name__ == '__main__':
+    if STARTUP_AUTH_ERROR:
+        raise SystemExit(f'OmniSocial 认证模式配置不安全，服务已拒绝启动：{STARTUP_AUTH_ERROR}')
     app.run(host=os.environ.get('OMNISOCIAL_BIND_HOST', '127.0.0.1'), port=5409)

@@ -4,6 +4,7 @@ services:
     restart: unless-stopped
     environment:
       OMNISOCIAL_ENV: production
+      OMNISOCIAL_AUTH_MODE: production
       OMNISOCIAL_ENABLE_REAL_PUBLISH: ${OMNISOCIAL_ENABLE_REAL_PUBLISH:-0}
       OMNISOCIAL_SESSION_SECRET: ${OMNISOCIAL_SESSION_SECRET:?Set a random session secret in .env}
       OMNISOCIAL_ADMIN_PASSWORD_HASH: ${OMNISOCIAL_ADMIN_PASSWORD_HASH:?Set a password hash in .env}
@@ -38,6 +39,7 @@ services:
     command: ["python", "sau_publish_worker.py"]
     environment:
       OMNISOCIAL_ENV: production
+      OMNISOCIAL_AUTH_MODE: production
       OMNISOCIAL_ENABLE_REAL_PUBLISH: ${OMNISOCIAL_ENABLE_REAL_PUBLISH:-0}
       OMNISOCIAL_SESSION_SECRET: ${OMNISOCIAL_SESSION_SECRET:?Set a random session secret in .env}
       OMNISOCIAL_ADMIN_PASSWORD_HASH: ${OMNISOCIAL_ADMIN_PASSWORD_HASH:?Set a password hash in .env}
