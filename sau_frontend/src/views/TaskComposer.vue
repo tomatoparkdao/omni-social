@@ -1,7 +1,6 @@
 <template>
   <div class="task-composer">
     <h1>新建发布任务</h1>
-    <el-alert title="仅保存发布前草稿。真实账号的最终发布目前禁止，保存任务不会向平台提交内容。" type="warning" :closable="false" />
     <el-form label-position="top" class="composer-form">
       <el-form-item label="内容类型">
         <el-radio-group v-model="form.contentType" @change="changeContentType">

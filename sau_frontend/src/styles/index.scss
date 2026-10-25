@@ -72,6 +72,8 @@ body {
 .el-dialog__title { color: $text-primary !important; }
 .el-radio__input.is-checked .el-radio__inner { background: $accent-color !important; border-color: $accent-color !important; }
 .el-radio__input.is-checked .el-radio__inner::after { background: #000000 !important; }
+// 按钮式单选（如「图文 / 视频」）选中态为荧光底，文字改用近黑色保证可读
+.el-radio-button { --el-radio-button-checked-text-color: #101214; }
 .el-checkbox__input.is-checked .el-checkbox__inner,
 .el-checkbox__input.is-indeterminate .el-checkbox__inner { background: $accent-color !important; border-color: $accent-color !important; }
 .el-checkbox__input.is-checked .el-checkbox__inner::after { border-color: #000000 !important; }

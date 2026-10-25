@@ -4,7 +4,6 @@
       <h1>{{ titles[mode] }}</h1>
       <el-button @click="refresh" :loading="loading">刷新</el-button>
     </div>
-    <el-alert v-if="mode === 'queue'" title="真实发布当前关闭。这里保存的是可核对的任务草稿，不会自动提交到平台。" type="warning" :closable="false" />
     <el-alert v-if="error" :title="error" type="error" :closable="false" />
     <el-table :data="visibleTasks" v-loading="loading" empty-text="暂无真实任务记录" class="task-table">
       <el-table-column prop="title" label="标题" min-width="180" />

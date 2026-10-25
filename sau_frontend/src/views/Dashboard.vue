@@ -86,7 +86,6 @@
         <el-col :span="8"><el-card class="stat-card"><div class="stat-info"><div class="stat-value">{{ taskStats.draft }}</div><div class="stat-label">待确认草稿</div></div></el-card></el-col>
         <el-col :span="8"><el-card class="stat-card"><div class="stat-info"><div class="stat-value">{{ systemHealthy ? '正常' : '待检查' }}</div><div class="stat-label">系统健康</div></div></el-card></el-col>
       </el-row>
-      <el-alert title="真实发布已关闭；任务统计只来自本地数据库，不代表平台已发布。" type="info" :closable="false" />
 
       <!-- 快捷操作区域 -->
       <div class="quick-actions">
@@ -138,7 +137,7 @@
           <el-button text @click="navigateTo('/material-management')">查看全部</el-button>
         </div>
 
-        <el-table :data="recentMaterials" style="width: 100%" v-loading="loading">
+        <el-table :data="recentMaterials" style="width: 100%" v-loading="loading" empty-text="">
           <el-table-column prop="filename" label="文件名" width="300" />
           <el-table-column prop="filesize" label="文件大小" width="120">
             <template #default="scope">
@@ -463,6 +462,11 @@ onMounted(() => {
         font-size: 28px;
         color: $text-tertiary;
       }
+    }
+
+    // 空数据由下方 dashboard-empty 统一呈现，隐藏表格自带的空行占位
+    :deep(.el-table__empty-block) {
+      display: none;
     }
   }
 }

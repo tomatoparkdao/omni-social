@@ -1,7 +1,6 @@
 <template>
   <div class="settings-page">
     <h1>系统设置</h1>
-    <el-alert title="敏感账号会话只保存在服务端，不提供网页下载或直接覆盖。真实发布默认关闭。" type="warning" :closable="false" />
     <el-card v-loading="loading" class="status-card">
       <template #header>运行状态</template>
       <p>环境：{{ status.mode === 'production' ? '生产' : '本地开发' }}</p>
